@@ -1,0 +1,37 @@
+
+# Jenkinsfile - Main Pipeline
+pipeline {
+    agent any
+    
+    stages {
+        stage('Clone Repos') {
+            steps {
+                echo 'Cloning all repositories...'
+            }
+        }
+        stage('Build Images') {
+            steps {
+                echo 'Building Docker images...'
+                // sh 'docker build -t frontend:latest ./frontend-app'
+                // sh 'docker build -t backend:latest ./backend-api'
+            }
+        }
+        stage('Test Apps') {
+            steps {
+                echo 'Running unit tests...'
+                // sh 'cd backend-api && pytest'
+            }
+        }
+        stage('Push to Registry') {
+            steps {
+                echo 'Pushing images to registry...'
+            }
+        }
+        stage('Deploy to K8s') {
+            steps {
+                echo 'Applying Kubernetes manifests...'
+                // sh 'kubectl apply -f devops-infra/kubernetes/'
+            }
+        }
+    }
+}

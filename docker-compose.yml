@@ -1,0 +1,50 @@
+services:
+  database:
+    image: postgres:16
+    container_name: database_con
+    environment:
+      POSTGRES_USER: app_admin
+      POSTGRES_PASSWORD: SuperSecret123
+      POSTGRES_DB: gamification
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U app_admin -d gamification" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - dev-net
+
+  backend:
+    build:
+      context: ./backend-api
+    container_name: backend_con
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://app_admin:SuperSecret123@database:5432/gamification
+      SECRET_KEY: DEVSECOPS
+    ports:
+      - "5000:5000"
+    depends_on:
+      database:
+        condition: service_healthy
+    networks:
+      - dev-net
+
+  frontend:
+    build:
+      context: ./frontend-app
+    container_name: frontend_con
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
+    networks:
+      - dev-net
+
+networks:
+  dev-net:
+    driver: bridge

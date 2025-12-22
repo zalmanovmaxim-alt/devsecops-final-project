@@ -1,0 +1,18 @@
+
+# Jenkinsfile.backend
+pipeline {
+    agent { label 'docker' }
+    stages {
+        stage('Unit Tests') {
+            steps {
+                sh 'pip install -r requirements.txt && pytest'
+            }
+        }
+        stage('Docker Build & Push') {
+            steps {
+                sh 'docker build -t $REGISTRY/backend:$BUILD_NUMBER .'
+                sh 'docker push $REGISTRY/backend:$BUILD_NUMBER'
+            }
+        }
+    }
+}
