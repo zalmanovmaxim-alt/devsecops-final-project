@@ -1,0 +1,252 @@
+{
+  "register_user": {
+    "url": "http://127.0.0.1:5001/register",
+    "method": "POST",
+    "body": "{\"username\":\"gilad\",\"password\":123}"
+  },
+  "login_user": {
+    "url": "http://127.0.0.1:5001/login",
+    "method": "POST",
+    "body": "{\"username\":\"gilad\",\"password\":123}"
+  },
+  "achievements_available": {
+    "url": "http://127.0.0.1:5001/achievements/available",
+    "method": "GET",
+    "body": "{}"
+  },
+  "achievements_unlock": {
+    "url": "http://127.0.0.1:5001/achievements/unlock",
+    "method": "POST",
+    "body": "{\"achievement_id\":1}"
+  },
+  "achievements_my_progress": {
+    "url": "http://127.0.0.1:5001/achievements/my-progress",
+    "method": "GET",
+    "body": "{}"
+  },
+  "achievements_create_custom": {
+    "url": "http://127.0.0.1:5001/achievements/create-custom",
+    "method": "POST",
+    "body": "{\"name\":\"\",\"description\":\"\",\"rarity\":\"common\"}"
+  },
+  "games_create": {
+    "url": "http://127.0.0.1:5001/games/create",
+    "method": "POST",
+    "body": "{\"title\":\"\",\"description\":\"\",\"start_at\":\"\",\"end_at\":\"\",\"is_active\":true}"
+  },
+  "games_active": {
+    "url": "http://127.0.0.1:5001/games/active",
+    "method": "GET",
+    "body": "{}"
+  },
+  "games_join": {
+    "url": "http://127.0.0.1:5001/games/join",
+    "method": "POST",
+    "body": "{\"competition_id\":1}"
+  },
+  "games_progress_update": {
+    "url": "http://127.0.0.1:5001/games/progress/update",
+    "method": "PUT",
+    "body": "{\"competition_id\":\"\",\"delta\":\"\"}"
+  },
+  "games_rules_update": {
+    "url": "http://127.0.0.1:5001/games/rules/update",
+    "method": "GET",
+    "body": "{}"
+  },
+  "competitions_code_quality": {
+    "url": "http://127.0.0.1:5001/competitions/code-quality",
+    "method": "POST",
+    "body": "{}"
+  },
+  "competitions_learning": {
+    "url": "http://127.0.0.1:5001/competitions/learning",
+    "method": "POST",
+    "body": "{}"
+  },
+  "competitions_fitness": {
+    "url": "http://127.0.0.1:5001/competitions/fitness",
+    "method": "POST",
+    "body": "{}"
+  },
+  "competitions_sustainability": {
+    "url": "http://127.0.0.1:5001/competitions/sustainability",
+    "method": "POST",
+    "body": "{}"
+  },
+  "competitions_creativity": {
+    "url": "http://127.0.0.1:5001/competitions/creativity",
+    "method": "POST",
+    "body": "{}"
+  },
+  "competitions_team_building": {
+    "url": "http://127.0.0.1:5001/competitions/team-building",
+    "method": "POST",
+    "body": "{}"
+  },
+  "competitions_joined": {
+    "url": "http://127.0.0.1:5001/competitions/joined",
+    "method": "GET",
+    "body": "{}"
+  },
+  "competitions_my_competitions": {
+    "url": "http://127.0.0.1:5001/competitions/my-competitions",
+    "method": "GET",
+    "body": "{}"
+  },
+  "competitions_all": {
+    "url": "http://127.0.0.1:5001/competitions/all",
+    "method": "GET",
+    "body": "{}"
+  },
+  "competitions_join": {
+    "url": "http://127.0.0.1:5001/competitions/join",
+    "method": "POST",
+    "body": "{\"competition_id\":\"\"}"
+  },
+  "competitions_leave": {
+    "url": "http://127.0.0.1:5001/competitions/leave",
+    "method": "DELETE",
+    "body": "{\"competition_id\":\"\"}"
+  },
+  "competitions_remove": {
+    "url": "http://127.0.0.1:5001/competitions/remove",
+    "method": "DELETE",
+    "body": "{\"competition_id\":\"\"}"
+  },
+  "leaderboards_global": {
+    "url": "http://127.0.0.1:5001/leaderboards/global",
+    "method": "GET",
+    "body": "{}"
+  },
+  "leaderboards_team": {
+    "url": "http://127.0.0.1:5001/leaderboards/team",
+    "method": "GET",
+    "body": "{}"
+  },
+  "leaderboards_monthly": {
+    "url": "http://127.0.0.1:5001/leaderboards/monthly",
+    "method": "GET",
+    "body": "{}"
+  },
+  "leaderboards_hall_of_fame": {
+    "url": "http://127.0.0.1:5001/leaderboards/hall-of-fame",
+    "method": "GET",
+    "body": "{}"
+  },
+  "leaderboards_predictions": {
+    "url": "http://127.0.0.1:5001/leaderboards/predictions",
+    "method": "POST",
+    "body": "{\"prediction\":\"\"}"
+  },
+  "leaderboards_predictions_view": {
+    "url": "http://127.0.0.1:5001/leaderboards/predictions",
+    "method": "GET",
+    "body": "{}"
+  },
+  "leaderboards_predictions_remove": {
+    "url": "http://127.0.0.1:5001/leaderboards/predictions/remove",
+    "method": "DELETE",
+    "body": "{\"id\":1}"
+  },
+  "leaderboards_add": {
+    "url": "http://127.0.0.1:5001/leaderboards/add",
+    "method": "POST",
+    "body": "{\"user\":\"\",\"points\":\"\",\"board\":\"global\"}"
+  },
+  "leaderboards_remove": {
+    "url": "http://127.0.0.1:5001/leaderboards/remove",
+    "method": "DELETE",
+    "body": "{\"id\":\"\"}"
+  },
+  "games_competition_remove": {
+    "url": "http://127.0.0.1:5001/games/competition/remove",
+    "method": "DELETE",
+    "body": "{\"id\":\"\"}"
+  },
+  "games_participation_remove": {
+    "url": "http://127.0.0.1:5001/games/participation/remove",
+    "method": "DELETE",
+    "body": "{\"id\":\"\"}"
+  },
+  "games_game_remove": {
+    "url": "http://127.0.0.1:5001/games/game/remove",
+    "method": "DELETE",
+    "body": "{\"id\":\"\"}"
+  },
+  "achievements_achievement_remove": {
+    "url": "http://127.0.0.1:5001/achievements/achievement/remove",
+    "method": "DELETE",
+    "body": "{\"id\":\"\"}"
+  },
+  "achievements_user_achievement_remove": {
+    "url": "http://127.0.0.1:5001/achievements/user-achievement/remove",
+    "method": "DELETE",
+    "body": "{\"id\":\"\"}"
+  },
+  "rewards_available": {
+    "url": "http://127.0.0.1:5001/rewards/available",
+    "method": "GET",
+    "body": "{}"
+  },
+  "rewards_donate_points": {
+    "url": "http://127.0.0.1:5001/rewards/donate-points",
+    "method": "POST",
+    "body": "{\"recipient\":\"\",\"amount\":\"\"}"
+  },
+  "rewards_add": {
+    "url": "http://127.0.0.1:5001/rewards/add",
+    "method": "POST",
+    "body": "{\"name\":\"\",\"points\":\"\"}"
+  },
+  "rewards_remove": {
+    "url": "http://127.0.0.1:5001/rewards/remove",
+    "method": "DELETE",
+    "body": "{\"id\":\"\"}"
+  },
+  "social_teams_create": {
+    "url": "http://127.0.0.1:5001/social/teams/create",
+    "method": "POST",
+    "body": "{\"team_name\":\"\",\"members\":[]}"
+  },
+  "social_friends": {
+    "url": "http://127.0.0.1:5001/social/friends",
+    "method": "GET",
+    "body": "{}"
+  },
+  "social_challenges_send": {
+    "url": "http://127.0.0.1:5001/social/challenges/send",
+    "method": "POST",
+    "body": "{\"to\":\"\",\"challenge\":\"\"}"
+  },
+  "social_challenges_view": {
+    "url": "http://127.0.0.1:5001/social/challenges/view",
+    "method": "GET",
+    "body": "{}"
+  },
+  "social_activity_feed": {
+    "url": "http://127.0.0.1:5001/social/activity-feed",
+    "method": "GET",
+    "body": "{}"
+  },
+  "social_celebrations": {
+    "url": "http://127.0.0.1:5001/social/celebrations",
+    "method": "GET",
+    "body": ""
+  },
+  "social_rivalries": {
+    "url": "http://127.0.0.1:5001/social/rivalries",
+    "method": "GET",
+    "body": "{}"
+  },
+  "social_activity_remove": {
+    "url": "http://127.0.0.1:5001/social/activity/remove",
+    "method": "DELETE",
+    "body": "{\"id\":\"\"}"
+  },
+  "social_challenges_remove": {
+    "url": "http://127.0.0.1:5001/social/challenges/remove",
+    "method": "DELETE",
+    "body": "{\"id\":\"\"}"
+  }
+}

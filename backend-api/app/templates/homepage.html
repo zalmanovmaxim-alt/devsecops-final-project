@@ -1,0 +1,2094 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Gamification Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root {
+      --matte-blue: #345da7; /* matte/duller blue */
+      --matte-blue-hover: #2a4a86;
+      --bg-page: #0b1220;        /* very dark navy */
+      --bg-surface: #111827;     /* slate-900 */
+      --bg-surface-2: #0f172a;   /* slightly darker */
+      --text-primary: #e5e7eb;   /* gray-200 */
+      --text-secondary: #cbd5e1; /* slate-300 */
+      --border: #374151;         /* gray-700 */
+      --table-head: #1f2937;     /* gray-800 */
+    }
+
+    /* Base dark theme */
+    html, body { background-color: var(--bg-page); color: var(--text-primary); }
+    header { background-color: var(--bg-surface-2) !important; color: var(--text-primary) !important; }
+    aside { background-color: var(--bg-surface) !important; color: var(--text-primary) !important; }
+
+    /* Cards, tables, pre blocks use dark surfaces */
+    .bg-white { background-color: var(--bg-surface) !important; }
+    .bg-gray-100 { background-color: var(--table-head) !important; }
+    .border { border-color: var(--border) !important; }
+    pre { background-color: var(--bg-surface) !important; color: var(--text-secondary); margin: 0 !important; padding: 0.25rem !important; }
+    /* Table hover color to match dark theme */
+    tr:hover { background-color: var(--bg-surface-2) !important; }
+    .hover\:bg-gray-50:hover { background-color: var(--bg-surface-2) !important; }
+
+    /* Inputs */
+    input { background-color: var(--bg-surface-2); color: var(--text-primary); border: 1px solid var(--border); }
+    input::placeholder { color: #94a3b8; }
+    select { background-color: var(--bg-surface-2); color: var(--text-primary); border: 1px solid var(--border); }
+    select option { background-color: var(--bg-surface-2); color: var(--text-primary); }
+
+    /* Body copy contrast fixes */
+    p, .text-gray-700 { color: var(--text-secondary) !important; background-color: transparent !important; }
+
+    /* Buttons: matte blue */
+    button { background-color: var(--matte-blue) !important; color: #ffffff !important; border: none; }
+    button:hover { background-color: var(--matte-blue-hover) !important; }
+  </style>
+  
+</head>
+<body class="bg-gray-100 font-sans">
+
+  <!-- Header -->
+  <header class="bg-blue-600 text-white p-4 flex justify-between items-center shadow">
+    <h1 class="text-xl font-bold">Gamification Platform</h1>
+    <div id="user-status" class="text-sm">Not logged in</div>
+  </header>
+
+  <div class="flex">
+    <!-- Sidebar -->
+    <aside class="w-64 bg-white shadow-lg min-h-screen p-4 space-y-4">
+      <button onclick="showSection('home-section')" class="w-full bg-blue-500 text-white py-2 rounded">🏠 home</button>
+      <button onclick="showSection('login-section')" class="w-full bg-blue-500 text-white py-2 rounded">🔑 Login</button>
+      <button onclick="showSection('register-section')" class="w-full bg-blue-500 text-white py-2 rounded">📝 Register</button>
+      <hr>
+      <button onclick="showSection('games-section')" class="w-full bg-blue-500 text-white py-2 rounded">🎮 games</button>
+      <button onclick="showSection('achievements-section')" class="w-full bg-blue-500 text-white py-2 rounded">🏆 Achievements</button>
+      <button onclick="showSection('competitions-section')" class="w-full bg-blue-500 text-white py-2 rounded">📊 Competitions</button>
+      <button onclick="showSection('rewards-section')" class="w-full bg-blue-500 text-white py-2 rounded">🎁 Rewards</button>
+      <button onclick="showSection('social-section')" class="w-full bg-blue-500 text-white py-2 rounded">👥 Social</button>
+      <button onclick="showSection('leaderboards-section')" class="w-full bg-blue-500 text-white py-2 rounded">👥 Leaderboards</button>
+    </aside>
+
+    <!-- Main content -->
+    <main class="flex-1 p-6">
+
+
+      <section id="home-section" class="mb-6">
+  <h2 class="text-2xl font-bold mb-4">Welcome to the Gamification Platform</h2>
+        <div class="bg-gray-800 border-l-4 border-blue-400 p-4 mb-6">
+          <p class="text-blue-200">
+            <strong>🏠 Home Dashboard:</strong> View the main overview of all players, their competitions, and total points. This is your central hub for monitoring office gamification progress.
+          </p>
+        </div>
+  <p class="text-gray-700 mb-6">
+    Use the sidebar to navigate through different sections. Start by logging in or registering a new account.
+  </p>
+
+  <!-- Players Table (grouped by user) -->
+  <h2 class="text-xl font-semibold mb-3">🎮 Players</h2>
+  <div class="overflow-x-auto mb-8">
+    <table class="table-auto border-collapse border border-gray-300 w-full text-sm bg-white shadow rounded-lg" id="players-table">
+      <thead class="bg-gray-100">
+        <tr>
+          <th class="border px-4 py-2">Player Name</th>
+          <th class="border px-4 py-2">Competitions</th>
+          <th class="border px-4 py-2">Points</th>
+        </tr>
+      </thead>
+      <tbody id="players-tbody">
+        {% for row in players_grouped %}
+        <tr class="hover:bg-gray-50">
+          <td class="border px-4 py-2">{{ row.username }}</td>
+          <td class="border px-4 py-2">{{ ", ".join(row.competitions) }}</td>
+          <td class="border px-4 py-2 text-center">{{ row.total_points }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+</section>
+
+      <!-- Login -->
+      <section id="login-section" class="hidden">
+        <h2 class="text-2xl mb-4">Login</h2>
+        <div class="bg-gray-800 border-l-4 border-green-400 p-4 mb-6">
+          <p class="text-green-200">
+            <strong>🔑 Login:</strong> Sign in to your account to access personalized features, track your progress, and participate in competitions. Your login credentials are used to identify you across all gamification features.
+          </p>
+        </div>
+        <input id="login-username" class="border p-2 w-full mb-2" placeholder="Username">
+        <input id="login-password" type="password" class="border p-2 w-full mb-2" placeholder="Password">
+        <button onclick="loginUser()" class="bg-blue-600 text-white px-4 py-2 rounded">Login</button>
+      </section>
+
+      <!-- Register -->
+      <section id="register-section" class="hidden">
+        <h2 class="text-2xl mb-4">Register</h2>
+        <div class="bg-gray-800 border-l-4 border-purple-400 p-4 mb-6">
+          <p class="text-purple-200">
+            <strong>📝 Register:</strong> Create a new account to join the gamification platform. Choose a unique username and secure password to start earning points, unlocking achievements, and competing with colleagues.
+          </p>
+        </div>
+        <input id="reg-username" class="border p-2 w-full mb-2" placeholder="Username">
+        <input id="reg-password" type="password" class="border p-2 w-full mb-2" placeholder="Password">
+        <button onclick="registerUser()" class="bg-blue-600 text-white px-4 py-2 rounded">Register</button>
+      </section>
+
+      <!-- Games -->
+      <section id="games-section" class="hidden">
+        <h2 class="text-2xl mb-4">Games</h2>
+        <div class="bg-gray-800 border-l-4 border-orange-400 p-4 mb-6">
+          <p class="text-orange-200">
+            <strong>🎮 Games:</strong> Create and manage custom game competitions. Set up tournaments, track participant progress, and define custom game rules. Perfect for organizing office challenges, tournaments, and skill-based competitions.
+          </p>
+        </div>
+        <div class="space-x-2">
+          <button onclick="sendRequest('games_create')" class="bg-blue-600 text-white px-3 py-2 rounded">Create</button>
+          <button onclick="sendRequest('games_active')" class="bg-blue-600 text-white px-3 py-2 rounded">Active</button>
+          <button onclick="sendRequest('games_progress_update')" class="bg-blue-600 text-white px-3 py-2 rounded">Update Progress</button>
+        </div>
+        <div id="games-output" class="bg-white p-1 mt-1 rounded shadow"></div>
+      </section>
+
+      <!-- Achievements -->
+      <section id="achievements-section" class="hidden">
+        <h2 class="text-2xl mb-4">Achievements</h2>
+        <div class="bg-gray-800 border-l-4 border-yellow-400 p-4 mb-6">
+          <p class="text-yellow-200">
+            <strong>🏆 Achievements:</strong> Unlock and manage achievement badges with rarity-based point values. Create custom achievements, track your progress, and earn points based on achievement rarity (Common: 10pts, Rare: 20pts, Epic: 40pts, Legendary: 80pts).
+          </p>
+        </div>
+        <div class="space-x-2">
+          <button onclick="sendRequest('achievements_available')" class="bg-blue-600 text-white px-3 py-2 rounded">Available</button>
+          <button onclick="sendRequest('achievements_create_custom')" class="bg-blue-600 text-white px-3 py-2 rounded">Custom</button>
+        </div>
+        <div id="achievements-output" class="bg-white p-1 mt-1 rounded shadow"></div>
+        <canvas id="achievementsChart" class="mt-4"></canvas>
+      </section>
+
+      <!-- Leaderboards -->
+      <section id="leaderboards-section" class="hidden">
+        <h2 class="text-2xl mb-1">Leaderboards</h2>
+        <div class="bg-gray-800 border-l-4 border-red-400 p-4 mb-6">
+          <p class="text-red-200">
+            <strong>🏆 Leaderboards:</strong> View rankings across different categories - Global (overall office rankings), Team (team-specific rankings), Monthly (monthly performance), and Hall of Fame (all-time top performers). Submit predictions and manage manual point entries.
+          </p>
+        </div>
+        <div class="space-x-2 mb-1">
+          <button onclick="sendRequest('leaderboards_global')" class="bg-blue-600 text-white px-3 py-2 rounded">Global</button>
+          <button onclick="sendRequest('leaderboards_team')" class="bg-blue-600 text-white px-3 py-2 rounded">Team</button>
+          <button onclick="sendRequest('leaderboards_monthly')" class="bg-blue-600 text-white px-3 py-2 rounded">Monthly</button>
+          <button onclick="sendRequest('leaderboards_hall_of_fame')" class="bg-blue-600 text-white px-3 py-2 rounded">Hall of Fame</button>
+          <button onclick="sendRequest('leaderboards_predictions_view')" class="bg-blue-600 text-white px-3 py-2 rounded">Predictions</button>
+          <button onclick="openEditEntry()" class="bg-blue-600 text-white px-3 py-2 rounded">Edit Entry</button>
+        </div>
+        <div id="leaderboards-output" class="bg-white p-1 mt-1 rounded shadow"></div>
+      </section>
+
+      <!-- Competitions -->
+      <section id="competitions-section" class="hidden">
+        <h2 class="text-2xl mb-4">📊 Competitions</h2>
+        <div class="bg-gray-800 border-l-4 border-indigo-400 p-4 mb-6">
+          <p class="text-indigo-200">
+            <strong>📊 Competitions:</strong> Join predefined office competition categories like Code Quality, Learning, Fitness, Sustainability, Creativity, and Team Building. View your joined competitions or browse all available competitions to participate in office-wide challenges.
+          </p>
+        </div>
+        
+        <!-- View Options -->
+        <div class="flex flex-wrap gap-2 mb-4">
+          <button onclick="sendRequest('competitions_my_competitions')" class="bg-green-600 text-white px-3 py-2 rounded">My Competitions</button>
+          <button onclick="sendRequest('competitions_all')" class="bg-purple-600 text-white px-3 py-2 rounded">All Competitions</button>
+          <button onclick="openJoinCompetitionModal()" class="bg-blue-600 text-white px-3 py-2 rounded">Join Competition</button>
+        </div>
+        
+        <div id="competitions-output" class="bg-white p-1 mt-1 rounded shadow"></div>
+      </section>
+
+      <!-- Rewards -->
+      <section id="rewards-section" class="hidden">
+        <h2 class="text-2xl mb-4">Rewards</h2>
+        <div class="bg-gray-800 border-l-4 border-pink-400 p-4 mb-6">
+          <p class="text-pink-200">
+            <strong>🎁 Rewards:</strong> Redeem your earned points for rewards and manage the reward catalog. Add new rewards, check your point balance, and donate points to colleagues. Your points come from achievements and competition progress.
+          </p>
+        </div>
+        <div class="space-x-2">
+          <button onclick="sendRequest('rewards_available')" class="bg-blue-600 text-white px-3 py-2 rounded">Available</button>
+          <button onclick="sendRequest('rewards_add')" class="bg-blue-600 text-white px-3 py-2 rounded">Add Rewards</button>
+          <button onclick="sendRequest('rewards_donate_points')" class="bg-blue-600 text-white px-3 py-2 rounded">Donate Points</button>
+        </div>
+        <div id="rewards-output" class="bg-white p-1 mt-1 rounded shadow"></div>
+      </section>
+
+      <!-- Social -->
+      <section id="social-section" class="hidden">
+        <h2 class="text-2xl mb-4">Social</h2>
+        <div class="bg-gray-800 border-l-4 border-teal-400 p-4 mb-6">
+          <p class="text-teal-200">
+            <strong>👥 Social:</strong> Build teams, send personal challenges to colleagues, and track social activities. Create team competitions, view the activity feed, and engage in friendly office rivalries to boost collaboration and engagement.
+          </p>
+        </div>
+        <div class="space-x-2">
+          <button onclick="sendRequest('social_teams_create')" class="bg-blue-600 text-white px-3 py-2 rounded">Create Teams</button>
+          <button onclick="sendRequest('social_activity_feed')" class="bg-blue-600 text-white px-3 py-2 rounded">Activity Feed</button>
+          <button onclick="sendRequest('social_challenges_send')" class="bg-blue-600 text-white px-3 py-2 rounded">Send Challenge</button>
+          <button onclick="sendRequest('social_rivalries')" class="bg-blue-600 text-white px-3 py-2 rounded">Rivalries</button>
+          <button onclick="sendRequest('social_celebrations')" class="bg-blue-600 text-white px-3 py-2 rounded">Celebrations</button>
+        </div>
+        <div id="social-output" class="bg-white p-1 mt-1 rounded shadow"></div>
+      </section>
+    </main>
+  </div>
+
+<script>
+/*
+=============================================================================
+GAMIFICATION PLATFORM - FRONTEND JAVASCRIPT
+=============================================================================
+
+This JavaScript handles the frontend functionality of the gamification platform.
+It manages:
+- User authentication and JWT tokens
+- API communication with the backend
+- Dynamic content loading and display
+- Section navigation and default tabs
+- Real-time data updates
+
+Key Features:
+- Single-page application with section-based navigation
+- Automatic default tab loading for each section
+- Dynamic table generation from JSON responses
+- JWT token management for authenticated requests
+- Preset-based API configuration system
+*/
+
+// =============================================================================
+// GLOBAL STATE VARIABLES
+// =============================================================================
+
+let authToken = null;                    // JWT token for authenticated requests
+let presets = {};                        // API endpoint configurations loaded from presets.txt
+let currentPreset = null;                // Currently selected API preset
+let currentTarget = null;                // DOM element to update with API responses
+
+// Track current view types for refresh purposes
+let currentLeaderboardType = null;       // Current leaderboard view (global, team, etc.)
+let currentGamesType = null;             // Current games view (active, create, etc.)
+let currentAchievementsType = null;      // Current achievements view (available, custom, etc.)
+let currentSocialType = null;            // Current social view (activity feed, teams, etc.)
+let currentRewardsType = null;           // Current rewards view (available, add, etc.)
+let currentCompetitionsType = null;      // Current competitions view (my competitions, all, etc.)
+
+// =============================================================================
+// SECTION NAVIGATION
+// =============================================================================
+
+/**
+ * Switch between different sections of the application.
+ * 
+ * This function handles the main navigation between different sections
+ * (home, games, achievements, competitions, rewards, social, leaderboards).
+ * It automatically loads the default tab for each section and clears
+ * any stale content from other sections.
+ * 
+ * @param {string} id - The ID of the section to show
+ */
+function showSection(id) {
+  // Hide all sections first
+  document.querySelectorAll("main section").forEach(sec => sec.classList.add("hidden"));
+  
+  // Show the selected section
+  document.getElementById(id).classList.remove("hidden");
+  
+  // Automatically load the default tab for this section
+  setDefaultTabForSection(id);
+  
+  // Clear all output divs to prevent showing stale content from other sections
+  const outputDivs = ['leaderboards-output', 'games-output', 'achievements-output', 'competitions-output', 'rewards-output', 'social-output'];
+  outputDivs.forEach(outputId => {
+    const outputDiv = document.getElementById(outputId);
+    if (outputDiv) {
+      outputDiv.innerHTML = '';
+    }
+  });
+}
+
+/**
+ * Set the default tab for each section when it's first opened.
+ * 
+ * This function automatically loads the most relevant content for each section
+ * when users navigate to it, providing a better user experience by showing
+ * content immediately instead of empty sections.
+ * 
+ * Default tabs:
+ * - Games: 'active' (shows active competitions)
+ * - Achievements: 'available' (shows available achievements to unlock)
+ * - Competitions: 'my_competitions' (shows user's joined competitions)
+ * - Rewards: 'available' (shows available rewards to redeem)
+ * - Social: 'activity_feed' (shows recent social activity)
+ * - Leaderboards: 'global' (shows global leaderboard)
+ * 
+ * @param {string} sectionId - The ID of the section being opened
+ */
+function setDefaultTabForSection(sectionId) {
+  // Wait a bit for the section to be visible before triggering the default tab
+  setTimeout(() => {
+    switch(sectionId) {
+      case 'games-section':
+        sendRequest('games_active');                    // Show active games/competitions
+        break;
+      case 'achievements-section':
+        sendRequest('achievements_available');          // Show available achievements
+        break;
+      case 'competitions-section':
+        sendRequest('competitions_my_competitions');    // Show user's competitions
+        break;
+      case 'rewards-section':
+        sendRequest('rewards_available');               // Show available rewards
+        break;
+      case 'social-section':
+        sendRequest('social_activity_feed');            // Show activity feed
+        break;
+      case 'leaderboards-section':
+        sendRequest('leaderboards_global');             // Show global leaderboard
+        break;
+      // No default tabs for home, login, register sections
+    }
+  }, 100);
+}
+
+// =============================================================================
+// DATA DISPLAY FUNCTIONS
+// =============================================================================
+
+/**
+ * Convert JSON data to HTML table format for display.
+ * 
+ * This function takes JSON responses from the API and converts them into
+ * HTML tables that can be displayed in the UI. It handles both arrays
+ * of objects and single objects.
+ * 
+ * @param {Object|Array|string} json - JSON data to convert
+ * @returns {string} HTML table string
+ */
+function jsonToTable(json) {
+  // Handle null/undefined data
+  if (!json) return "<p>No data</p>";
+  
+  // Handle string responses
+  if (typeof json === "string") return `<p>${json}</p>`;
+
+  // Prefer rendering array payloads inside common keys (rewards, leaderboard, etc.)
+  let dataArray = null;
+  if (Array.isArray(json)) {
+    dataArray = json;
+  } else if (typeof json === 'object' && json !== null) {
+    const keys = Object.keys(json);
+    const preferred = ['rewards','leaderboard','predictions','hall_of_fame','items','data','store','unlocked','locked'];
+    // pick first preferred key that is an array
+    for (const k of preferred) {
+      if (Array.isArray(json[k])) { dataArray = json[k]; break; }
+    }
+    // otherwise, if exactly one array-valued key exists, use it
+    if (!dataArray) {
+      const arrayKeys = keys.filter(k => Array.isArray(json[k]));
+      if (arrayKeys.length === 1) dataArray = json[arrayKeys[0]];
+    }
+  }
+
+  // Helper to make labels nicer
+  const prettify = (s) => String(s).replace(/_/g, ' ');
+
+  // If we found an array to render
+  if (Array.isArray(dataArray)) {
+    // If array of primitives
+    if (dataArray.length > 0 && (typeof dataArray[0] !== 'object' || dataArray[0] === null)) {
+      return `<table class="table-auto border-collapse border border-gray-300 w-full text-sm">
+        <thead class="bg-gray-100"><tr><th class="border px-2 py-1 text-center">value</th></tr></thead>
+        <tbody>
+          ${dataArray.map(val => `<tr><td class="border px-2 py-1 text-center">${val}</td></tr>`).join('')}
+        </tbody>
+      </table>`;
+    }
+
+    // Array of objects → collect headers
+    let allHeaders = [...new Set(dataArray.flatMap(obj => Object.keys(obj || {})))];
+    
+    // Check if this has 'id' field to add Actions column
+    const hasId = dataArray.length > 0 && dataArray[0] && 'id' in dataArray[0];
+    
+    // Define specific column order for leaderboards
+    const leaderboardOrder = ['user', 'achievements', 'points'];
+    const teamLeaderboardOrder = ['user', 'team_name', 'achievements', 'points'];
+    const gamesOrder = ['title', 'description', 'participants', 'duration'];
+    const competitionsOrder = ['title', 'description', 'participants', 'duration'];
+    
+    // Check if this is a leaderboard by looking for specific fields
+    const isLeaderboard = allHeaders.includes('achievements') && allHeaders.includes('points');
+    const isTeamLeaderboard = isLeaderboard && allHeaders.includes('team_name');
+    
+    // Check if this is achievements data by looking for specific fields
+    const isAchievements = allHeaders.includes('name') && allHeaders.includes('description') && allHeaders.includes('locked');
+    
+    // Check if this is competitions data by looking for specific fields (check this first)
+    console.log('Table rendering - allHeaders:', allHeaders);
+    // Check if this is competitions data - use currentPreset to be more reliable
+    const isCompetitions = (currentPreset && (currentPreset.name === 'competitions_my_competitions' || currentPreset.name === 'competitions_all')) || 
+                          (allHeaders.includes('title') && allHeaders.includes('description') && (allHeaders.includes('is_active') || allHeaders.includes('joined_at')));
+    console.log('Table rendering - isCompetitions:', isCompetitions, 'currentPreset:', currentPreset ? currentPreset.name : 'null');
+    
+    // Check if this is games data by looking for specific fields (but not competitions)
+    const isGames = !isCompetitions && allHeaders.includes('title') && allHeaders.includes('description') && allHeaders.includes('start_at');
+    
+    // Check if this is rewards data by looking for specific fields
+    const isRewards = allHeaders.includes('name') && allHeaders.includes('points') && allHeaders.includes('id');
+    
+    // Check if this is joined competitions (has joined_at field)
+    const isJoinedCompetitions = isCompetitions && allHeaders.includes('joined_at');
+    
+    // Check if we're viewing "My Competitions" by checking if joined_at field exists
+    const isMyCompetitions = isCompetitions && allHeaders.includes('joined_at');
+    
+    // For competitions, we always want an Actions column if there's an id
+    const needsActionsColumn = hasId || isGames || isRewards || isCompetitions;
+    
+    // Special handling for games data - combine start_at and end_at into duration
+    if (isGames && dataArray.length > 0) {
+      dataArray = dataArray.map(row => {
+        if (row && row.start_at && row.end_at) {
+          // Convert ISO dates to dd/mm/yyyy format and combine
+          const startDate = new Date(row.start_at);
+          const endDate = new Date(row.end_at);
+          const startStr = startDate.toLocaleDateString('en-GB');
+          const endStr = endDate.toLocaleDateString('en-GB');
+          row.duration = `${startStr} - ${endStr}`;
+        }
+        return row;
+      });
+      
+      // Update headers to include duration and participants, remove start_at and end_at
+      allHeaders = allHeaders.filter(h => h !== 'start_at' && h !== 'end_at');
+      if (!allHeaders.includes('duration')) allHeaders.push('duration');
+      if (!allHeaders.includes('participants')) allHeaders.push('participants');
+    }
+    
+    let headers;
+    if (isTeamLeaderboard) {
+      // Use team leaderboard order, only include fields that exist in the data
+      headers = teamLeaderboardOrder.filter(h => allHeaders.includes(h));
+    } else if (isLeaderboard) {
+      // Use regular leaderboard order, only include fields that exist in the data
+      headers = leaderboardOrder.filter(h => allHeaders.includes(h));
+    } else if (isAchievements) {
+      // For achievements, exclude ID column and use specific order
+      headers = ['name', 'description', 'rarity', 'user_unlocked'].filter(h => allHeaders.includes(h));
+    } else if (isGames) {
+      // For games, use specific order: title, description, participants, duration
+      headers = gamesOrder.filter(h => allHeaders.includes(h));
+    } else if (isCompetitions) {
+      // For competitions, use same order as games: title, description, participants, duration
+      headers = competitionsOrder.filter(h => allHeaders.includes(h));
+    } else {
+      // Exclude 'id' column from display since we have remove buttons
+      headers = hasId ? allHeaders.filter(h => h !== 'id') : allHeaders;
+    }
+    
+    return `<table class="w-full border-collapse border border-gray-300">
+      <thead>
+        <tr class="bg-gray-100">
+          ${headers.map(h => `<th class="border border-gray-300 px-3 py-2 text-center">${prettify(h)}</th>`).join("")}${needsActionsColumn ? '<th class="border border-gray-300 px-3 py-2 text-center">Actions</th>' : ''}
+        </tr>
+      </thead>
+      <tbody>
+        ${dataArray.map(row => `
+          <tr>
+            ${headers.map(h => {
+              const v = row ? row[h] : '';
+              if (v === null || v === undefined) return `<td class="border border-gray-300 px-3 py-2 text-center"></td>`;
+              if (h === 'achievements' && Array.isArray(v)) {
+                // Special handling for achievements array
+                if (v.length === 0) return `<td class="border border-gray-300 px-3 py-2 text-center">No achievements</td>`;
+                return `<td class="border border-gray-300 px-3 py-2 text-center">
+                  <div class="space-y-1">
+                    ${v.map(ach => `
+                      <div class="text-sm text-gray-700">${ach.name}</div>
+                    `).join('')}
+                  </div>
+                </td>`;
+              }
+              if (h === 'participants' && Array.isArray(v)) {
+                // Special handling for participants array
+                if (v.length === 0) return `<td class="border border-gray-300 px-3 py-2 text-center">No participants</td>`;
+                return `<td class="border border-gray-300 px-3 py-2 text-center">
+                  <div class="space-y-1">
+                    ${v.map(participant => `
+                      <div class="text-sm text-gray-700">${participant.username || participant.user || participant}</div>
+                    `).join('')}
+                  </div>
+                </td>`;
+              }
+              if (typeof v === 'object') {
+                // Render objects as key:value pairs
+                const kv = Object.entries(v).map(([k, val]) => `${prettify(k)}: ${val}`).join(', ');
+                return `<td class="border border-gray-300 px-3 py-2 text-center">${kv}</td>`;
+              }
+              return `<td class="border border-gray-300 px-3 py-2 text-center">${v}</td>`;
+            }).join("")            }${needsActionsColumn && row && row.id ? `<td class="border border-gray-300 px-3 py-2 text-center">
+              ${isAchievements ? 
+                `<div class="space-y-1">
+                  <button onclick="unlockAchievement('${row.id}')" class="bg-green-600 text-white px-2 py-1 rounded text-sm hover:bg-green-700 block mx-auto w-full">Unlock</button>
+                  <button onclick="lockAchievement('${row.id}')" class="bg-yellow-600 text-white px-2 py-1 rounded text-sm hover:bg-yellow-700 block mx-auto w-full">Lock</button>
+                  <button onclick="removeAchievement('${row.id}')" class="bg-red-600 text-white px-2 py-1 rounded text-sm hover:bg-red-700 block mx-auto w-full">Remove</button>
+                </div>` :
+                isGames ?
+                `<div class="space-y-1">
+                  <button onclick="joinGame('${row.id}')" class="bg-green-600 text-white px-2 py-1 rounded text-sm hover:bg-green-700 block mx-auto w-full">Join</button>
+                  <button onclick="removeEntry('${row.id}', '${currentTarget ? currentTarget.id : ''}')" class="bg-red-600 text-white px-2 py-1 rounded text-sm hover:bg-red-700 block mx-auto w-full">Remove</button>
+                </div>` :
+                isRewards ?
+                `<div class="space-y-1">
+                  <button onclick="redeemReward('${row.id}')" class="bg-green-600 text-white px-2 py-1 rounded text-sm hover:bg-green-700 block mx-auto w-full">Redeem</button>
+                  <button onclick="removeEntry('${row.id}', '${currentTarget ? currentTarget.id : ''}')" class="bg-red-600 text-white px-2 py-1 rounded text-sm hover:bg-red-700 block mx-auto w-full">Remove</button>
+                </div>` :
+                isCompetitions ?
+                `<div class="space-y-1">
+                  <button onclick="${currentPreset && currentPreset.name === 'competitions_my_competitions' ? 'leaveCompetition(\'' + row.id + '\')' : 'removeCompetition(\'' + row.id + '\')'}" class="bg-red-600 text-white px-2 py-1 rounded text-sm hover:bg-red-700 block mx-auto w-full" id="comp-btn-${row.id}">${currentPreset && currentPreset.name === 'competitions_my_competitions' ? 'Leave' : 'Remove'}</button>
+                </div>` :
+                `<button onclick="${isCompetitions ? 'handleCompetitionButton(\'' + row.id + '\')' : 'removeEntry(\'' + row.id + '\', \'' + (currentTarget ? currentTarget.id : '') + '\')'}" class="bg-red-600 text-white px-2 py-1 rounded text-sm hover:bg-red-700 block mx-auto">${isCompetitions ? 'Leave' : 'Remove'}</button>`
+              }
+            </td>` : ''}
+          </tr>`).join("")}
+      </tbody>
+    </table>`;
+  }
+
+  // Fallback: render object as two-column key/value table
+  const entries = Object.entries(json);
+  return `<table class="table-auto border-collapse border border-gray-300 w-full text-sm">
+    <thead class="bg-gray-100"><tr><th class="border px-2 py-1 text-center">field</th><th class="border px-2 py-1 text-center">value</th></tr></thead>
+    <tbody>
+      ${entries.map(([k, v]) => {
+        const val = (v && typeof v === 'object') ? Object.entries(v).map(([kk,vv]) => `${prettify(kk)}: ${vv}`).join(', ') : v;
+        return `<tr><td class="border px-2 py-1 text-center">${prettify(k)}</td><td class="border px-2 py-1 text-center">${val ?? ''}</td></tr>`;
+      }).join('')}
+    </tbody>
+  </table>`;
+}
+
+// Auto-refresh players table every 5 seconds
+async function refreshPlayers() {
+  try {
+    const res = await fetch('/api/players_grouped');
+    const data = await res.json();
+    const tbody = document.getElementById('players-tbody');
+    if (!tbody) return;
+    tbody.innerHTML = data.map(row => `
+      <tr class="hover:bg-gray-50">
+        <td class="border px-4 py-2">${row.username}</td>
+        <td class="border px-4 py-2">${(row.competitions || []).join(', ')}</td>
+        <td class="border px-4 py-2 text-center">${row.total_points || row.total_progress}</td>
+      </tr>
+    `).join('');
+  } catch (e) {
+    // ignore refresh errors silently
+  }
+}
+
+window.addEventListener('DOMContentLoaded', refreshPlayers);
+
+// Register user
+async function registerUser() {
+  const username = document.getElementById("reg-username").value;
+  const password = document.getElementById("reg-password").value;
+  const res = await fetch("/register", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ username, password })
+  });
+  const data = await res.json();
+  alert("Registered: " + JSON.stringify(data));
+}
+
+// Login user
+async function loginUser() {
+  const username = document.getElementById("login-username").value;
+  const password = document.getElementById("login-password").value;
+  const res = await fetch("/login", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ username, password })
+  });
+  const data = await res.json();
+  if (res.ok) {
+    authToken = data.access_token; // <-- Save the JWT token
+    document.getElementById("user-status").innerText = "Logged in as " + username;
+    alert("Login successful!");
+  } else {
+    alert("Login failed: " + JSON.stringify(data));
+  }
+}
+
+// Load presets
+fetch("/static/presets.txt")
+  .then(res => res.text())
+  .then(txt => { presets = JSON.parse(txt); })
+  .catch(err => console.error("Failed to load presets", err));
+
+// =============================================================================
+// API COMMUNICATION
+// =============================================================================
+
+/**
+ * Send API request using preset configuration.
+ * 
+ * This is the core function that handles all API communication with the backend.
+ * It uses the preset system to make HTTP requests and updates the UI with responses.
+ * 
+ * The preset system allows the frontend to make API calls without hardcoding
+ * URLs and parameters. Each preset contains:
+ * - url: The API endpoint URL
+ * - method: HTTP method (GET, POST, PUT, DELETE)
+ * - body: Request body for POST/PUT requests
+ * 
+ * @param {string} name - The name of the preset to use (e.g., 'games_active')
+ */
+function sendRequest(name) {
+  console.log('sendRequest called with:', name);
+  console.log('Available presets:', Object.keys(presets));
+  
+  // Validate that the preset exists
+  if (!presets[name]) return alert("Preset not found: " + name);
+  
+  // Set current preset and target
+  currentPreset = presets[name];
+  currentPreset.name = name;
+  console.log('currentPreset set to:', currentPreset.name);
+  
+  // Find the target output div for this request
+  currentTarget = document.querySelector(`#${name.split("_")[0]}-output`);
+  
+  // =============================================================================
+  // TRACK CURRENT VIEW TYPES FOR REFRESH PURPOSES
+  // =============================================================================
+  
+  // Track current view types so we can refresh them after actions
+  if (name.startsWith('leaderboards_')) {
+    currentLeaderboardType = name;
+  }
+  
+  if (name.startsWith('games_')) {
+    currentGamesType = name;
+  }
+  
+  if (name.startsWith('achievements_')) {
+    currentAchievementsType = name;
+  }
+  
+  if (name.startsWith('social_')) {
+    currentSocialType = name;
+  }
+  
+  if (name.startsWith('rewards_')) {
+    currentRewardsType = name;
+  }
+  
+  if (name.startsWith('competitions_')) {
+    currentCompetitionsType = name;
+  }
+
+  if (["POST", "PUT", "PATCH", "DELETE"].includes(currentPreset.method.toUpperCase())) {
+    // Custom titles for better UX
+    let customTitle = `${currentPreset.method} ${name}`;
+    if (name === 'social_teams_create') customTitle = 'Create Your Team';
+    else if (name === 'social_challenges_send') customTitle = 'Send Challenge';
+    else if (name === 'social_celebrations') customTitle = 'Celebrations';
+    else if (name === 'leaderboards_predictions') customTitle = 'Submit Your Prediction';
+    else if (name === 'games_create') customTitle = 'Make Your Own Custom Game!';
+    else if (name === 'games_progress_update') customTitle = 'Update Your Score';
+    else if (name === 'rewards_add') customTitle = 'Add New Rewards';
+    else if (name === 'rewards_donate_points') customTitle = 'Donate Points to Another Player';
+    else if (name === 'achievements_create_custom') customTitle = 'Create Your Custom Achievement';
+    
+    document.getElementById("request-title").innerText = customTitle;
+    
+    // Build form fields from JSON body
+    let fieldsContainer = document.getElementById("request-fields");
+    fieldsContainer.innerHTML = "";
+    let bodyObj = {};
+    try { bodyObj = currentPreset.body ? JSON.parse(currentPreset.body) : {}; }
+    catch { bodyObj = {}; }
+
+    Object.entries(bodyObj).forEach(([key, value]) => {
+      let field = document.createElement("div");
+      field.className = "flex items-center gap-2";
+      
+      // Pretty display names for fields
+      let displayName = key;
+      if (key === 'team_name') displayName = 'Team Name';
+      else if (key === 'members') displayName = 'Members (comma-separated)';
+      else if (key === 'to') displayName = 'Send To';
+      else if (key === 'challenge') displayName = 'Challenge';
+      else if (key === 'achievement_id') displayName = 'Achievement ID';
+      else if (key === 'message') displayName = 'Message';
+      else if (key === 'rarity') displayName = 'Rarity';
+      else if (key === 'start_at') displayName = 'Start Date';
+      else if (key === 'end_at') displayName = 'End Date';
+      else if (key === 'competition_id') displayName = 'Competition Name';
+      else if (key === 'delta') displayName = 'Points';
+      else if (key === 'duration') displayName = 'Duration';
+      else if (key === 'participants') displayName = 'Participants';
+      else if (key === 'recipient') displayName = 'Recipient Username';
+      else if (key === 'charity') displayName = 'Charity';
+      
+      // Hide is_active field from users
+      if (key === 'is_active') {
+        return; // Skip rendering this field
+      }
+      
+      if (key === 'rarity') {
+        field.innerHTML = `
+          <label class="w-1/3 font-semibold">${displayName}</label>
+          <select data-key="${key}" class="flex-1 border rounded px-2 py-1 focus:ring-2 focus:ring-blue-400 focus:outline-none">
+            <option value="common" ${value === 'common' ? 'selected' : ''}>Common (10 points)</option>
+            <option value="rare" ${value === 'rare' ? 'selected' : ''}>Rare (20 points)</option>
+            <option value="epic" ${value === 'epic' ? 'selected' : ''}>Epic (40 points)</option>
+            <option value="legendary" ${value === 'legendary' ? 'selected' : ''}>Legendary (80 points)</option>
+          </select>
+        `;
+      } else if (key === 'start_at' || key === 'end_at') {
+        // Set default dates for games_create
+        let defaultValue = value;
+        if (name === 'games_create' && !value) {
+          const now = new Date();
+          const weekFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+          
+          if (key === 'start_at') {
+            defaultValue = now.toLocaleDateString('en-GB'); // dd/mm/yyyy format
+          } else if (key === 'end_at') {
+            defaultValue = weekFromNow.toLocaleDateString('en-GB'); // dd/mm/yyyy format
+          }
+        }
+        
+        field.innerHTML = `
+          <label class="w-1/3 font-semibold">${displayName}</label>
+          <input type="text" data-key="${key}" value="${defaultValue}" 
+            placeholder="dd/mm/yyyy" class="flex-1 border rounded px-2 py-1 focus:ring-2 focus:ring-blue-400 focus:outline-none"/>
+        `;
+      } else {
+        field.innerHTML = `
+          <label class="w-1/3 font-semibold">${displayName}</label>
+          <input type="text" data-key="${key}" value="${value}" 
+            class="flex-1 border rounded px-2 py-1 focus:ring-2 focus:ring-blue-400 focus:outline-none"/>
+        `;
+      }
+      fieldsContainer.appendChild(field);
+    });
+
+    document.getElementById("request-panel").classList.remove("hidden");
+  } else {
+    confirmRequest(); // auto send if no body is needed
+  }
+}
+
+// Open Add Entry prefilled with a board selector
+function openEditEntry() {
+  // Create a custom modal for leaderboard editing
+  let fieldsContainer = document.getElementById('request-fields');
+  fieldsContainer.innerHTML = '';
+
+  // Add Entry Section
+  let addSection = document.createElement('div');
+  addSection.innerHTML = `
+    <div class="space-y-2">
+      <div class="flex items-center gap-2">
+        <label class="w-1/3 font-semibold">User</label>
+        <input type="text" id="add-user" class="flex-1 border rounded px-2 py-1" placeholder="Enter username"/>
+      </div>
+      <div class="flex items-center gap-2">
+        <label class="w-1/3 font-semibold">Points</label>
+        <input type="number" id="add-points" class="flex-1 border rounded px-2 py-1" placeholder="Enter points"/>
+      </div>
+      <div class="flex items-center gap-2">
+        <label class="w-1/3 font-semibold">Board</label>
+        <select id="add-board" class="flex-1 border rounded px-2 py-1">
+          <option value="global">Global</option>
+          <option value="team">Team</option>
+          <option value="monthly">Monthly</option>
+          <option value="hall_of_fame">Hall of Fame</option>
+        </select>
+      </div>
+      <button onclick="addLeaderboardEntry()" class="w-full bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Add Entry</button>
+    </div>
+  `;
+
+  fieldsContainer.appendChild(addSection);
+
+  document.getElementById('request-title').innerText = 'Add Leaderboard Entry';
+
+  // Remove the Send Request button completely for this custom modal
+  const sendRequestButton = document.querySelector('#request-panel button[onclick="confirmRequest()"]');
+  if (sendRequestButton) {
+    sendRequestButton.remove();
+  }
+
+  document.getElementById('request-panel').classList.remove('hidden');
+}
+
+function addLeaderboardEntry() {
+  const user = document.getElementById('add-user').value;
+  const points = document.getElementById('add-points').value;
+  const board = document.getElementById('add-board').value;
+  
+  if (!user || !points) {
+    alert('Please fill in user and points');
+    return;
+  }
+  
+  // Use the existing leaderboards_add preset
+  const preset = presets['leaderboards_add'];
+  if (!preset) return alert('Preset not found: leaderboards_add');
+  
+  currentPreset = JSON.parse(JSON.stringify(preset));
+  currentPreset.name = 'leaderboards_add';
+  currentTarget = document.querySelector('#leaderboards-output');
+  
+  // Set the form data
+  const formData = { user, points, board };
+  
+  // Send the request
+  sendLeaderboardRequest(formData);
+}
+
+
+async function sendLeaderboardRequest(formData) {
+  if (!currentPreset) return;
+
+  let options = { method: currentPreset.method };
+  options.headers = { "Content-Type": "application/json" };
+  if (authToken) {
+    options.headers["Authorization"] = "Bearer " + authToken;
+  }
+  options.body = JSON.stringify(formData);
+
+  try {
+    const res = await fetch(currentPreset.url, options);
+    const txt = await res.text();
+    let data; try { data = JSON.parse(txt); } catch { data = txt; }
+
+    if (currentTarget) {
+      currentTarget.innerHTML = (typeof data === "object") ? jsonToTable(data) : `<pre>${txt}</pre>`;
+    }
+    
+    // Auto-refresh competitions list after successful POST requests
+    if (res.ok && currentPreset && currentPreset.name && currentPreset.name.startsWith('competitions_') && 
+        ["POST", "PUT", "PATCH"].includes(currentPreset.method.toUpperCase())) {
+      console.log('Auto-refreshing competitions after successful POST request');
+      // Refresh the competitions view by directly fetching data
+      setTimeout(async () => {
+        try {
+          const refreshResponse = await fetch('/competitions/all');
+          const refreshData = await refreshResponse.json();
+          const competitionsOutput = document.getElementById('competitions-output');
+          if (competitionsOutput) {
+            competitionsOutput.innerHTML = jsonToTable(refreshData);
+          }
+        } catch (error) {
+          console.error('Error refreshing competitions:', error);
+        }
+      }, 500); // Small delay to ensure the request is complete
+    }
+  } catch (err) {
+    alert("Error: " + err);
+  } finally {
+    closePanel();
+  }
+}
+
+
+// Close modal
+  function closePanel() {
+    document.getElementById("request-panel").classList.add("hidden");
+    
+    // Restore the Send Request button in case it was removed
+    const buttonContainer = document.querySelector('#request-panel .flex.justify-end.gap-2.mt-3');
+    const sendRequestButton = document.querySelector('#request-panel button[onclick="confirmRequest()"]');
+    if (!sendRequestButton && buttonContainer) {
+      // Recreate the Send Request button if it was removed
+      const newButton = document.createElement('button');
+      newButton.setAttribute('onclick', 'confirmRequest()');
+      newButton.className = 'px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700';
+      newButton.textContent = 'Send Request';
+      buttonContainer.appendChild(newButton);
+    }
+    
+    currentPreset = null;
+    currentTarget = null;
+  }
+
+  async function removeActivity(activityId) {
+    if (!confirm('Are you sure you want to remove this activity?')) {
+      return;
+    }
+
+    try {
+      const options = {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ id: activityId })
+      };
+
+      if (authToken) {
+        options.headers['Authorization'] = 'Bearer ' + authToken;
+      }
+
+      const res = await fetch('/social/activity/remove', options);
+      const txt = await res.text();
+      let data;
+      try { 
+        data = JSON.parse(txt); 
+      } catch { 
+        data = txt; 
+      }
+
+      if (res.ok) {
+        // Refresh the activity feed
+        sendRequest('social_activity_feed');
+      } else {
+        alert('Error removing activity: ' + (data.message || data));
+      }
+    } catch (err) {
+      alert('Error: ' + err);
+    }
+  }
+
+  async function removeLeaderboardEntry(entryId) {
+    if (!confirm('Are you sure you want to remove this leaderboard entry?')) {
+      return;
+    }
+
+    try {
+      const options = {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ id: entryId })
+      };
+
+      if (authToken) {
+        options.headers['Authorization'] = 'Bearer ' + authToken;
+      }
+
+      const res = await fetch('/leaderboards/remove', options);
+      const txt = await res.text();
+      let data;
+      try { 
+        data = JSON.parse(txt); 
+      } catch { 
+        data = txt; 
+      }
+
+      if (res.ok) {
+        // Refresh the current leaderboard view
+        if (currentLeaderboardType) {
+          sendRequest(currentLeaderboardType);
+        }
+      } else {
+        const errorMsg = data.message || data.error || (typeof data === 'string' ? data : JSON.stringify(data));
+        alert('Error removing entry: ' + errorMsg);
+      }
+    } catch (err) {
+      alert('Error: ' + err);
+    }
+  }
+
+  // Unlock achievement function
+  async function unlockAchievement(achievementId) {
+    if (!confirm('Are you sure you want to unlock this achievement?')) {
+      return;
+    }
+
+    try {
+      const headers = {
+        'Content-Type': 'application/json',
+      };
+      if (authToken) {
+        headers['Authorization'] = 'Bearer ' + authToken;
+      }
+      
+      const response = await fetch('/achievements/unlock', {
+        method: 'POST',
+        headers: headers,
+        body: JSON.stringify({
+          achievement_id: achievementId
+        })
+      });
+
+      const result = await response.json();
+      
+      if (response.ok) {
+        alert('Achievement unlocked successfully!');
+        // Refresh the achievements available view
+        if (currentAchievementsType) {
+          sendRequest(currentAchievementsType);
+        }
+        // Also refresh the leaderboard to reflect updated points
+        if (currentLeaderboardType) {
+          sendRequest(currentLeaderboardType);
+        }
+        // Refresh homepage to update achievement points
+        refreshPlayers();
+      } else {
+        alert('Error: ' + (result.error || 'Failed to unlock achievement'));
+      }
+    } catch (error) {
+      console.error('Error unlocking achievement:', error);
+      alert('Error unlocking achievement: ' + error.message);
+    }
+  }
+
+  // Lock achievement function
+  async function lockAchievement(achievementId) {
+    if (!confirm('Are you sure you want to lock this achievement?')) {
+      return;
+    }
+
+    try {
+      const headers = {
+        'Content-Type': 'application/json',
+      };
+      if (authToken) {
+        headers['Authorization'] = 'Bearer ' + authToken;
+      }
+      
+      const response = await fetch('/achievements/lock', {
+        method: 'POST',
+        headers: headers,
+        body: JSON.stringify({
+          achievement_id: achievementId
+        })
+      });
+
+      const result = await response.json();
+      
+      if (response.ok) {
+        alert('Achievement locked successfully!');
+        // Refresh the achievements available view
+        if (currentAchievementsType) {
+          sendRequest(currentAchievementsType);
+        }
+        // Also refresh the leaderboard to reflect updated points
+        if (currentLeaderboardType) {
+          sendRequest(currentLeaderboardType);
+        }
+        // Refresh homepage to update achievement points
+        refreshPlayers();
+      } else {
+        alert('Error: ' + (result.error || 'Failed to lock achievement'));
+      }
+    } catch (error) {
+      console.error('Error locking achievement:', error);
+      alert('Error locking achievement: ' + error.message);
+    }
+  }
+
+  // Remove achievement function
+  async function removeAchievement(achievementId) {
+    if (!confirm('Are you sure you want to remove this achievement? This will permanently delete it.')) {
+      return;
+    }
+
+    try {
+      const headers = {
+        'Content-Type': 'application/json',
+      };
+      if (authToken) {
+        headers['Authorization'] = 'Bearer ' + authToken;
+      }
+      
+      const response = await fetch('/achievements/achievement/remove', {
+        method: 'DELETE',
+        headers: headers,
+        body: JSON.stringify({
+          id: achievementId
+        })
+      });
+
+      const result = await response.json();
+      
+      if (response.ok) {
+        alert('Achievement removed successfully!');
+        // Refresh the achievements available view
+        if (currentAchievementsType) {
+          sendRequest(currentAchievementsType);
+        }
+        // Also refresh the leaderboard to reflect updated points
+        if (currentLeaderboardType) {
+          sendRequest(currentLeaderboardType);
+        }
+        // Refresh homepage to update achievement points
+        refreshPlayers();
+      } else {
+        alert('Error: ' + (result.error || 'Failed to remove achievement'));
+      }
+    } catch (error) {
+      console.error('Error removing achievement:', error);
+      alert('Error removing achievement: ' + error.message);
+    }
+  }
+
+  // Dedicated function for removing predictions
+async function removePrediction(predictionId) {
+  if (!confirm('Are you sure you want to remove this prediction?')) {
+    return;
+  }
+
+  try {
+    const headers = {
+      'Content-Type': 'application/json',
+    };
+    if (authToken) {
+      headers['Authorization'] = 'Bearer ' + authToken;
+    }
+    
+    const response = await fetch('/leaderboards/predictions/remove', {
+      method: 'DELETE',
+      headers: headers,
+      body: JSON.stringify({
+        id: predictionId
+      })
+    });
+
+    const result = await response.json();
+    
+    if (response.ok) {
+      alert('Prediction removed successfully!');
+      // Refresh the predictions view
+      sendRequest('leaderboards_predictions_view');
+    } else {
+      const errorMsg = result.message || result.error || (typeof result === 'string' ? result : JSON.stringify(result));
+      alert('Error removing prediction: ' + errorMsg);
+    }
+  } catch (error) {
+    console.error('Error removing prediction:', error);
+    alert('Error removing prediction: ' + error.message);
+  }
+}
+
+async function joinGame(gameId) {
+  if (!confirm('Are you sure you want to join this game?')) {
+    return;
+  }
+
+  try {
+    const headers = {
+      'Content-Type': 'application/json',
+    };
+    if (authToken) {
+      headers['Authorization'] = 'Bearer ' + authToken;
+    }
+    
+    const response = await fetch('/games/join', {
+      method: 'POST',
+      headers: headers,
+      body: JSON.stringify({
+        competition_id: gameId
+      })
+    });
+
+    const result = await response.json();
+    
+    if (response.ok) {
+      alert('Successfully joined the game!');
+      // Refresh the active games view
+      sendRequest('games_active');
+    } else {
+      const errorMsg = result.message || result.error || (typeof result === 'string' ? result : JSON.stringify(result));
+      alert('Error joining game: ' + errorMsg);
+    }
+  } catch (error) {
+    console.error('Error joining game:', error);
+    alert('Error joining game: ' + error.message);
+  }
+}
+
+async function redeemReward(rewardId) {
+  if (!confirm('Are you sure you want to redeem this reward?')) {
+    return;
+  }
+
+  try {
+    const headers = {
+      'Content-Type': 'application/json',
+    };
+    if (authToken) {
+      headers['Authorization'] = 'Bearer ' + authToken;
+    }
+    
+    const response = await fetch('/rewards/redeem', {
+      method: 'POST',
+      headers: headers,
+      body: JSON.stringify({
+        reward_id: rewardId
+      })
+    });
+
+    const result = await response.json();
+    
+    if (response.ok) {
+      alert('Reward redeemed successfully!');
+      // Refresh the rewards available view
+      if (currentRewardsType) {
+        sendRequest(currentRewardsType);
+      }
+      // Refresh homepage to update spent points
+      refreshPlayers();
+    } else {
+      const errorMsg = result.message || result.error || (typeof result === 'string' ? result : JSON.stringify(result));
+      alert('Error redeeming reward: ' + errorMsg);
+    }
+  } catch (error) {
+    console.error('Error redeeming reward:', error);
+    alert('Error redeeming reward: ' + error.message);
+  }
+}
+
+async function leaveCompetition(competitionId) {
+  if (!confirm('Are you sure you want to leave this competition?')) {
+    return;
+  }
+
+  try {
+    const headers = {
+      'Content-Type': 'application/json',
+    };
+    if (authToken) {
+      headers['Authorization'] = 'Bearer ' + authToken;
+    }
+    
+    const response = await fetch('/competitions/leave', {
+      method: 'DELETE',
+      headers: headers,
+      body: JSON.stringify({
+        competition_id: competitionId
+      })
+    });
+
+    const result = await response.json();
+    
+    if (response.ok) {
+      alert('Successfully left the competition!');
+      // Only refresh the current view to avoid switching tabs
+      console.log('Refreshing current competitions view after leaving...');
+      if (currentPreset && currentPreset.name === 'competitions_my_competitions') {
+        sendRequest('competitions_my_competitions');
+      } else if (currentPreset && currentPreset.name === 'competitions_all') {
+        sendRequest('competitions_all');
+      } else {
+        // Fallback: refresh the my competitions view
+        sendRequest('competitions_my_competitions');
+      }
+      // Refresh homepage to update the competition list
+      refreshPlayers();
+    } else {
+      const errorMsg = result.message || result.error || (typeof result === 'string' ? result : JSON.stringify(result));
+      alert('Error leaving competition: ' + errorMsg);
+    }
+  } catch (error) {
+    console.error('Error leaving competition:', error);
+    alert('Error leaving competition: ' + error.message);
+  }
+}
+
+async function joinCompetition(competitionId) {
+  if (!confirm('Are you sure you want to join this competition?')) {
+    return;
+  }
+
+  try {
+    const headers = {
+      'Content-Type': 'application/json',
+    };
+    if (authToken) {
+      headers['Authorization'] = 'Bearer ' + authToken;
+    }
+    
+    const response = await fetch('/competitions/join', {
+      method: 'POST',
+      headers: headers,
+      body: JSON.stringify({
+        competition_id: competitionId
+      })
+    });
+
+    const result = await response.json();
+    
+    if (response.ok) {
+      alert('Successfully joined the competition!');
+      // Refresh the current view
+      if (currentPreset && currentPreset.name === 'competitions_joined') {
+        sendRequest('competitions_joined');
+      } else if (currentPreset && currentPreset.name === 'competitions_all') {
+        sendRequest('competitions_all');
+      }
+      // Refresh homepage to show the new competition
+      refreshPlayers();
+    } else {
+      const errorMsg = result.message || result.error || (typeof result === 'string' ? result : JSON.stringify(result));
+      alert('Error joining competition: ' + errorMsg);
+    }
+  } catch (error) {
+    console.error('Error joining competition:', error);
+    alert('Error joining competition: ' + error.message);
+  }
+}
+
+async function handleCompetitionButton(competitionId) {
+  console.log('handleCompetitionButton called with:', { competitionId, currentPreset: currentPreset ? currentPreset.name : 'null' });
+  console.log('Full currentPreset object:', currentPreset);
+  
+  // Determine action based on current preset
+  let action = 'remove'; // default to remove
+  
+  if (currentPreset && currentPreset.name === 'competitions_my_competitions') {
+    action = 'leave';
+    console.log('Setting action to LEAVE for my competitions');
+  } else if (currentPreset && currentPreset.name === 'competitions_all') {
+    action = 'remove';
+    console.log('Setting action to REMOVE for all competitions');
+  } else {
+    console.log('Using default action REMOVE - currentPreset:', currentPreset);
+  }
+  
+  console.log('Final determined action:', action);
+  
+  if (action === 'leave') {
+    console.log('Calling leaveCompetition...');
+    await leaveCompetition(competitionId);
+  } else if (action === 'remove') {
+    console.log('Calling removeCompetition...');
+    await removeCompetition(competitionId);
+  } else {
+    console.error('Unknown competition action:', action);
+    alert('Unknown action: ' + action);
+  }
+}
+
+async function handleCompetitionAction(competitionId, action) {
+  console.log('handleCompetitionAction called with:', { competitionId, action, currentPreset: currentPreset ? currentPreset.name : 'null' });
+  
+  if (action === 'leave') {
+    // Use the existing leave logic
+    await leaveCompetition(competitionId);
+  } else if (action === 'remove') {
+    // Use the existing remove logic
+    await removeCompetition(competitionId);
+  } else {
+    console.error('Unknown competition action:', action);
+    alert('Unknown action: ' + action);
+  }
+}
+
+async function removeCompetition(competitionId) {
+  if (!confirm('Are you sure you want to remove this competition entirely? This will delete it for all users.')) {
+    return;
+  }
+
+  try {
+    const headers = {
+      'Content-Type': 'application/json',
+    };
+    if (authToken) {
+      headers['Authorization'] = 'Bearer ' + authToken;
+    }
+    
+    const response = await fetch('/competitions/remove', {
+      method: 'DELETE',
+      headers: headers,
+      body: JSON.stringify({
+        competition_id: competitionId
+      })
+    });
+
+    const result = await response.json();
+    
+    if (response.ok) {
+      alert('Competition removed successfully!');
+      // Refresh competitions view by directly fetching data
+      console.log('Refreshing competitions views after removal...');
+      setTimeout(async () => {
+        try {
+          const refreshResponse = await fetch('/competitions/all');
+          const refreshData = await refreshResponse.json();
+          const competitionsOutput = document.getElementById('competitions-output');
+          if (competitionsOutput) {
+            competitionsOutput.innerHTML = jsonToTable(refreshData);
+          }
+        } catch (error) {
+          console.error('Error refreshing competitions after removal:', error);
+        }
+      }, 500);
+      // Refresh homepage to update the competition list
+      refreshPlayers();
+    } else {
+      const errorMsg = result.message || result.error || (typeof result === 'string' ? result : JSON.stringify(result));
+      alert('Error removing competition: ' + errorMsg);
+    }
+  } catch (error) {
+    console.error('Error removing competition:', error);
+    alert('Error removing competition: ' + error.message);
+  }
+}
+
+  // Join Competition Modal Functions
+  function openJoinCompetitionModal() {
+    document.getElementById('join-competition-modal').classList.remove('hidden');
+  }
+
+  function closeJoinCompetitionModal() {
+    document.getElementById('join-competition-modal').classList.add('hidden');
+  }
+
+  async function joinCompetitionType(competitionType) {
+    try {
+      const headers = {
+        'Content-Type': 'application/json',
+      };
+      if (authToken) {
+        headers['Authorization'] = 'Bearer ' + authToken;
+      }
+      
+      const response = await fetch(`/competitions/${competitionType}`, {
+        method: 'POST',
+        headers: headers,
+        body: JSON.stringify({})
+      });
+
+      const result = await response.json();
+      
+      if (response.ok) {
+        alert('Successfully joined the competition!');
+        closeJoinCompetitionModal();
+        // Refresh the competitions view
+        if (currentPreset && currentPreset.name === 'competitions_joined') {
+          sendRequest('competitions_joined');
+        } else if (currentPreset && currentPreset.name === 'competitions_all') {
+          sendRequest('competitions_all');
+        }
+        // Refresh homepage to show the new competition
+        refreshPlayers();
+      } else {
+        const errorMsg = result.message || result.error || (typeof result === 'string' ? result : JSON.stringify(result));
+        alert('Error joining competition: ' + errorMsg);
+      }
+    } catch (error) {
+      console.error('Error joining competition:', error);
+      alert('Error joining competition: ' + error.message);
+    }
+  }
+
+  // Generic remove function for games and other entries
+  async function removeEntry(entryId, targetId) {
+    console.log('removeEntry called with:', { entryId, targetId, currentPreset: currentPreset ? currentPreset.name : 'none' });
+    
+    if (!confirm('Are you sure you want to remove this entry?')) {
+      return;
+    }
+
+    try {
+      // Determine the correct endpoint based on the target section
+      let endpoint = '';
+      if (targetId === 'leaderboards-output') {
+        // For leaderboards, check if we're viewing predictions
+        console.log('Current preset:', currentPreset ? currentPreset.name : 'none');
+        if (currentPreset && currentPreset.name === 'leaderboards_predictions_view') {
+          endpoint = '/leaderboards/predictions/remove';
+          console.log('Using predictions remove endpoint');
+        } else {
+          endpoint = '/leaderboards/remove';
+          console.log('Using general leaderboards remove endpoint');
+        }
+      } else if (targetId === 'games-output') {
+        // For games, we need to determine the type based on the current preset
+        if (currentPreset && currentPreset.name) {
+          console.log('Current preset name:', currentPreset.name); // Debug log
+          if (currentPreset.name === 'games_active') {
+            endpoint = '/games/competition/remove';
+          } else if (currentPreset.name === 'games_join') {
+            endpoint = '/games/participation/remove';
+          } else if (currentPreset.name === 'games_custom_create') {
+            endpoint = '/games/game/remove';
+          } else {
+            // Default to competition remove for other games endpoints
+            endpoint = '/games/competition/remove';
+          }
+        } else {
+          // Default to competition remove if no preset
+          endpoint = '/games/competition/remove';
+        }
+      } else if (targetId === 'achievements-output') {
+        // For achievements, we need to determine the type based on the current preset
+        if (currentPreset && currentPreset.name) {
+          if (currentPreset.name === 'achievements_available') {
+            endpoint = '/achievements/achievement/remove';
+          } else if (currentPreset.name === 'achievements_my_progress') {
+            endpoint = '/achievements/user-achievement/remove';
+          } else {
+            // Default to achievement remove for other achievements endpoints
+            endpoint = '/achievements/achievement/remove';
+          }
+        } else {
+          // Default to achievement remove if no preset
+          endpoint = '/achievements/achievement/remove';
+        }
+      } else if (targetId === 'rewards-output') {
+        // For rewards, use the rewards remove endpoint
+        endpoint = '/rewards/remove';
+      } else if (targetId === 'competitions-output') {
+        // For competitions, determine if we should leave or remove based on current preset
+        console.log('Competitions removeEntry - currentPreset:', currentPreset);
+        console.log('Competitions removeEntry - currentPreset.name:', currentPreset ? currentPreset.name : 'undefined');
+        if (currentPreset && currentPreset.name === 'competitions_my_competitions') {
+          // In "My Competitions" - use leave endpoint
+          endpoint = '/competitions/leave';
+          console.log('Using leave endpoint for my competitions');
+        } else if (currentPreset && currentPreset.name === 'competitions_all') {
+          // In "All Competitions" - use remove endpoint (delete competition entirely)
+          endpoint = '/competitions/remove';
+          console.log('Using remove endpoint for all competitions');
+        } else {
+          // Default to leave endpoint
+          endpoint = '/competitions/leave';
+          console.log('Using default leave endpoint - currentPreset:', currentPreset);
+        }
+      }
+
+      if (!endpoint) {
+        alert('Remove functionality not available for this item. Target: ' + targetId + ', Preset: ' + (currentPreset ? currentPreset.name : 'none'));
+        return;
+      }
+
+      const options = {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(targetId === 'competitions-output' ? { competition_id: entryId } : { id: entryId })
+      };
+
+      if (authToken) {
+        options.headers['Authorization'] = 'Bearer ' + authToken;
+      }
+
+      const res = await fetch(endpoint, options);
+      const txt = await res.text();
+      let data;
+      try { 
+        data = JSON.parse(txt); 
+      } catch { 
+        data = txt; 
+      }
+      
+      console.log('Remove request response:', { status: res.status, data: data });
+
+      if (res.ok) {
+        // Refresh the current view
+        if (targetId === 'leaderboards-output' && currentLeaderboardType) {
+          sendRequest(currentLeaderboardType);
+        } else if (targetId === 'games-output' && currentGamesType) {
+          sendRequest(currentGamesType);
+        } else if (targetId === 'achievements-output' && currentAchievementsType) {
+          sendRequest(currentAchievementsType);
+        } else if (targetId === 'rewards-output' && currentRewardsType) {
+          sendRequest(currentRewardsType);
+        } else if (targetId === 'competitions-output' && currentCompetitionsType) {
+          sendRequest(currentCompetitionsType);
+        }
+      } else {
+        const errorMsg = data.message || data.error || (typeof data === 'string' ? data : JSON.stringify(data));
+        alert('Error removing entry: ' + errorMsg);
+      }
+    } catch (err) {
+      alert('Error: ' + err);
+    }
+  }
+
+  async function removeChallenge(challengeId) {
+    if (!confirm('Are you sure you want to remove this challenge?')) {
+      return;
+    }
+
+    try {
+      const options = {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ id: challengeId })
+      };
+
+      if (authToken) {
+        options.headers['Authorization'] = 'Bearer ' + authToken;
+      }
+
+      const res = await fetch('/social/challenges/remove', options);
+      const txt = await res.text();
+      let data;
+      try { 
+        data = JSON.parse(txt); 
+      } catch { 
+        data = txt; 
+      }
+
+      if (res.ok) {
+        // Refresh the current view
+        if (currentSocialType && (currentSocialType === 'social_challenges_view' || currentSocialType === 'social_rivalries')) {
+          sendRequest(currentSocialType);
+        }
+      } else {
+        alert('Error removing challenge: ' + (data.message || data));
+      }
+    } catch (err) {
+      alert('Error: ' + err);
+    }
+  }
+
+
+// Confirm and send
+async function confirmRequest() {
+  if (!currentPreset) return;
+
+  let options = { method: currentPreset.method };
+
+  options.headers = { "Content-Type": "application/json" };
+  if (authToken) {
+    options.headers["Authorization"] = "Bearer " + authToken;
+  }
+
+  if (["POST","PUT","PATCH","DELETE"].includes(currentPreset.method.toUpperCase())) {
+    let newBody = {};
+    document.querySelectorAll("#request-fields input, #request-fields select").forEach(el => {
+      let value = el.value;
+      
+      // Special handling for members field - convert comma-separated string to array
+      if (el.dataset.key === 'members' && value) {
+        newBody[el.dataset.key] = value.split(',').map(m => m.trim()).filter(m => m.length > 0);
+      } 
+      // Special handling for date fields - convert dd/mm/yyyy to ISO format
+      else if ((el.dataset.key === 'start_at' || el.dataset.key === 'end_at') && value) {
+        // Convert dd/mm/yyyy to ISO format (yyyy-mm-ddT00:00:00)
+        const parts = value.split('/');
+        if (parts.length === 3) {
+          const day = parts[0].padStart(2, '0');
+          const month = parts[1].padStart(2, '0');
+          const year = parts[2];
+          newBody[el.dataset.key] = `${year}-${month}-${day}T00:00:00`;
+        } else {
+          newBody[el.dataset.key] = value; // fallback to original value
+        }
+      } else {
+        newBody[el.dataset.key] = value;
+      }
+    });
+    options.body = JSON.stringify(newBody);
+  }
+
+  try {
+    const res = await fetch(currentPreset.url, options);
+    const txt = await res.text();
+    let data; try { data = JSON.parse(txt); } catch { data = txt; }
+
+    if (currentTarget) {
+      // Special handling for challenges view to show organized table
+      if (currentPreset.name === 'social_challenges_view' && data && data.challenges) {
+        let challengesTable = `
+          <div class="bg-white p-4 rounded shadow">
+            <h3 class="text-lg font-semibold mb-3">Recent Challenges</h3>
+            <table class="w-full border-collapse border border-gray-300">
+              <thead>
+                <tr class="bg-gray-100">
+                  <th class="border border-gray-300 px-3 py-2 text-center">Challenger</th>
+                  <th class="border border-gray-300 px-3 py-2 text-center">Challenged</th>
+                  <th class="border border-gray-300 px-3 py-2 text-center">Challenge</th>
+                  <th class="border border-gray-300 px-3 py-2 text-center">Date</th>
+                  <th class="border border-gray-300 px-3 py-2 text-center w-20">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+        `;
+        
+        if (data.challenges && data.challenges.length > 0) {
+          data.challenges.forEach(challenge => {
+            let dateStr = '';
+            if (challenge.created_at) {
+              const date = new Date(challenge.created_at);
+              dateStr = date.toLocaleString();
+            }
+            
+            challengesTable += `
+              <tr>
+                <td class="border border-gray-300 px-3 py-2 text-center">${challenge.challenger || 'anonymous'}</td>
+                <td class="border border-gray-300 px-3 py-2 text-center">${challenge.challenged || 'unknown'}</td>
+                <td class="border border-gray-300 px-3 py-2 text-center">${challenge.challenge || 'No challenge'}</td>
+                <td class="border border-gray-300 px-3 py-2 text-center text-sm text-gray-600">${dateStr}</td>
+                <td class="border border-gray-300 px-3 py-2 text-center w-20">
+                  <button onclick="removeChallenge(${challenge.id})" class="bg-red-600 text-white px-2 py-1 rounded text-sm hover:bg-red-700 block mx-auto">Remove</button>
+                </td>
+              </tr>
+            `;
+          });
+        } else {
+          challengesTable += `
+            <tr>
+              <td class="border border-gray-300 px-3 py-2 text-center text-gray-500" colspan="5">No challenges yet</td>
+            </tr>
+          `;
+        }
+        
+        challengesTable += `
+              </tbody>
+            </table>
+          </div>
+        `;
+        currentTarget.innerHTML = challengesTable;
+      }
+      // Special handling for rivalries to show challenges
+      else if (currentPreset.name === 'social_rivalries' && data && data.rivalries) {
+        let rivalriesTable = `
+          <div class="bg-white p-4 rounded shadow">
+            <h3 class="text-lg font-semibold mb-3">Office Rivalries & Challenges</h3>
+            <table class="w-full border-collapse border border-gray-300">
+              <thead>
+                <tr class="bg-gray-100">
+                  <th class="border border-gray-300 px-3 py-2 text-center">Challenger</th>
+                  <th class="border border-gray-300 px-3 py-2 text-center">Challenged</th>
+                  <th class="border border-gray-300 px-3 py-2 text-center">Challenge</th>
+                  <th class="border border-gray-300 px-3 py-2 text-center">Date</th>
+                  <th class="border border-gray-300 px-3 py-2 text-center w-20">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+        `;
+        
+        if (data.rivalries && data.rivalries.length > 0) {
+          data.rivalries.forEach(challenge => {
+            let dateStr = '';
+            if (challenge.created_at) {
+              const date = new Date(challenge.created_at);
+              dateStr = date.toLocaleString();
+            }
+            
+            rivalriesTable += `
+              <tr>
+                <td class="border border-gray-300 px-3 py-2 text-center">${challenge.challenger || 'anonymous'}</td>
+                <td class="border border-gray-300 px-3 py-2 text-center">${challenge.challenged || 'unknown'}</td>
+                <td class="border border-gray-300 px-3 py-2 text-center">${challenge.challenge || 'No challenge'}</td>
+                <td class="border border-gray-300 px-3 py-2 text-center text-sm text-gray-600">${dateStr}</td>
+                <td class="border border-gray-300 px-3 py-2 text-center w-20">
+                  <button onclick="removeChallenge(${challenge.id})" class="bg-red-600 text-white px-2 py-1 rounded text-sm hover:bg-red-700 block mx-auto">Remove</button>
+                </td>
+              </tr>
+            `;
+          });
+        } else {
+          rivalriesTable += `
+            <tr>
+              <td class="border border-gray-300 px-3 py-2 text-center text-gray-500" colspan="5">No rivalries yet</td>
+            </tr>
+          `;
+        }
+        
+        rivalriesTable += `
+              </tbody>
+            </table>
+          </div>
+        `;
+        currentTarget.innerHTML = rivalriesTable;
+      }
+      // Special handling for celebrations to show organized table
+      else if (currentPreset.name === 'social_celebrations' && data && data.celebrations) {
+        let celebrationsTable = `
+          <div class="bg-white p-1 rounded shadow">
+            <h3 class="text-lg font-semibold mb-1">Recent Celebrations</h3>
+            <table class="w-full border-collapse border border-gray-300">
+              <thead>
+                <tr class="bg-gray-100">
+                  <th class="border border-gray-300 px-3 py-2 text-center">Message</th>
+                  <th class="border border-gray-300 px-3 py-2 text-center">Date</th>
+                </tr>
+              </thead>
+              <tbody>
+        `;
+        
+        if (data.celebrations && data.celebrations.length > 0) {
+          data.celebrations.forEach(celebration => {
+            let dateStr = '';
+            if (celebration.created_at) {
+              const date = new Date(celebration.created_at);
+              dateStr = date.toLocaleString();
+            }
+            
+            celebrationsTable += `
+              <tr>
+                <td class="border border-gray-300 px-3 py-2 text-center">${celebration.message}</td>
+                <td class="border border-gray-300 px-3 py-2 text-center text-sm text-gray-600">${dateStr}</td>
+              </tr>
+            `;
+          });
+        } else {
+          celebrationsTable += `
+            <tr>
+              <td class="border border-gray-300 px-3 py-2 text-center text-gray-500" colspan="2">No celebrations yet</td>
+            </tr>
+          `;
+        }
+        
+        celebrationsTable += `
+              </tbody>
+            </table>
+          </div>
+        `;
+        currentTarget.innerHTML = celebrationsTable;
+      }
+      // Special handling for predictions view to show organized table
+      else if (currentPreset.name === 'leaderboards_predictions_view') {
+        let predictionsTable = `
+          <div class="bg-white p-1 rounded shadow">
+            <div class="flex justify-between items-center mb-2">
+              <h3 class="text-lg font-semibold">Recent Predictions</h3>
+              <button onclick="sendRequest('leaderboards_predictions')" class="bg-green-600 text-white px-3 py-1 rounded text-sm hover:bg-green-700">Submit Prediction</button>
+            </div>
+            <table class="w-full border-collapse border border-gray-300">
+              <thead>
+                <tr class="bg-gray-100">
+                  <th class="border border-gray-300 px-3 py-2 text-center">User</th>
+                  <th class="border border-gray-300 px-3 py-2 text-center">Prediction</th>
+                  <th class="border border-gray-300 px-3 py-2 text-center">Date</th>
+                  <th class="border border-gray-300 px-3 py-2 text-center">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+        `;
+        
+        if (data && data.predictions && data.predictions.length > 0) {
+          data.predictions.forEach(pred => {
+            let dateStr = '';
+            if (pred.created_at) {
+              const date = new Date(pred.created_at);
+              dateStr = date.toLocaleString();
+            }
+            
+            predictionsTable += `
+              <tr>
+                <td class="border border-gray-300 px-3 py-2 text-center">${pred.user || 'anonymous'}</td>
+                <td class="border border-gray-300 px-3 py-2 text-center">${pred.prediction || 'No prediction'}</td>
+                <td class="border border-gray-300 px-3 py-2 text-center text-sm text-gray-600">${dateStr}</td>
+                <td class="border border-gray-300 px-3 py-2 text-center">
+                  <button onclick="removePrediction('${pred.id}')" class="bg-red-600 text-white px-2 py-1 rounded text-sm hover:bg-red-700 block mx-auto">Remove</button>
+                </td>
+              </tr>
+            `;
+          });
+        } else {
+          predictionsTable += `
+            <tr>
+              <td class="border border-gray-300 px-3 py-2 text-center text-gray-500" colspan="4">No predictions yet</td>
+            </tr>
+          `;
+        }
+        
+        predictionsTable += `
+              </tbody>
+            </table>
+          </div>
+        `;
+        currentTarget.innerHTML = predictionsTable;
+      }
+      // Special handling for activity feed to show organized table
+      else if (currentPreset.name === 'social_activity_feed' && data && data.feed) {
+        let activityTable = `
+          <div class="bg-white p-4 rounded shadow">
+            <h3 class="text-lg font-semibold mb-3">Recent Activity</h3>
+            <table class="w-full border-collapse border border-gray-300">
+              <thead>
+                <tr class="bg-gray-100">
+                  <th class="border border-gray-300 px-3 py-2 text-center">User</th>
+                  <th class="border border-gray-300 px-3 py-2 text-center">Activity</th>
+                  <th class="border border-gray-300 px-3 py-2 text-center">Team</th>
+                  <th class="border border-gray-300 px-3 py-2 text-center">Member Names</th>
+                  <th class="border border-gray-300 px-3 py-2 text-center">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+        `;
+        
+        if (data.feed && data.feed.length > 0) {
+          data.feed.forEach(activity => {
+            activityTable += `
+              <tr>
+                <td class="border border-gray-300 px-3 py-2 text-center">${activity.user || 'anonymous'}</td>
+                <td class="border border-gray-300 px-3 py-2 text-center">${activity.description || 'Activity'}</td>
+                <td class="border border-gray-300 px-3 py-2 text-center">${activity.team_name || '-'}</td>
+                <td class="border border-gray-300 px-3 py-2 text-center">${activity.member_names || '-'}</td>
+                <td class="border border-gray-300 px-3 py-2 text-center">
+                  <button onclick="removeActivity(${activity.id})" class="bg-red-600 text-white px-2 py-1 rounded text-sm hover:bg-red-700 block mx-auto">Remove</button>
+                </td>
+              </tr>
+            `;
+          });
+        } else {
+          activityTable += `
+            <tr>
+              <td class="border border-gray-300 px-3 py-2 text-center text-gray-500" colspan="5">No recent activity</td>
+            </tr>
+          `;
+        }
+        
+        activityTable += `
+              </tbody>
+            </table>
+          </div>
+        `;
+        currentTarget.innerHTML = activityTable;
+      }
+      // Special handling for team creation to show team members table
+      else if (currentPreset.name === 'social_teams_create' && data && data.team) {
+        let teamTable = `
+          <div class="bg-white p-4 rounded shadow">
+            <h3 class="text-lg font-semibold mb-3">Team Created: ${data.team.name}</h3>
+            <table class="w-full border-collapse border border-gray-300">
+                       <thead>
+                         <tr class="bg-gray-100">
+                           <th class="border border-gray-300 px-3 py-2 text-center">Member Name</th>
+                           <th class="border border-gray-300 px-3 py-2 text-center">Role</th>
+                         </tr>
+                       </thead>
+              <tbody>
+        `;
+        
+        if (data.team.members && data.team.members.length > 0) {
+          data.team.members.forEach(member => {
+                     teamTable += `
+                       <tr>
+                         <td class="border border-gray-300 px-3 py-2 text-center">${member}</td>
+                         <td class="border border-gray-300 px-3 py-2 text-center">Member</td>
+                       </tr>
+                     `;
+          });
+        } else {
+          teamTable += `
+            <tr>
+              <td class="border border-gray-300 px-3 py-2 text-center text-gray-500" colspan="2">No members added yet</td>
+            </tr>
+          `;
+        }
+        
+        teamTable += `
+              </tbody>
+            </table>
+          </div>
+        `;
+        currentTarget.innerHTML = teamTable;
+      } else {
+        currentTarget.innerHTML = (typeof data === "object") ? jsonToTable(data) : `<pre>${txt}</pre>`;
+      }
+    }
+    
+    // Refresh homepage if game, rewards, or achievement operations were successful
+    if (res.ok && currentPreset && currentPreset.name && 
+        (currentPreset.name === 'games_create' || currentPreset.name === 'games_join' || 
+         currentPreset.name === 'games_progress_update' || 
+         currentPreset.name === 'rewards_redeem' || currentPreset.name === 'rewards_donate_points' ||
+         currentPreset.name === 'achievements_unlock' || currentPreset.name === 'achievements_lock' || 
+         currentPreset.name === 'achievements_achievement_remove')) {
+      refreshPlayers();
+    }
+    
+    // Auto-refresh competitions list after successful POST requests
+    if (res.ok && currentPreset && currentPreset.name && currentPreset.name.startsWith('competitions_') && 
+        ["POST", "PUT", "PATCH"].includes(currentPreset.method.toUpperCase())) {
+      console.log('Auto-refreshing competitions after successful POST request');
+      // Refresh the competitions view by directly fetching data
+      setTimeout(async () => {
+        try {
+          const refreshResponse = await fetch('/competitions/all');
+          const refreshData = await refreshResponse.json();
+          const competitionsOutput = document.getElementById('competitions-output');
+          if (competitionsOutput) {
+            competitionsOutput.innerHTML = jsonToTable(refreshData);
+          }
+        } catch (error) {
+          console.error('Error refreshing competitions:', error);
+        }
+      }, 500); // Small delay to ensure the request is complete
+    }
+  } catch (err) {
+    alert("Error: " + err);
+  } finally {
+    closePanel();
+  }
+}
+
+</script>
+<!-- Request Editor Panel -->
+<div id="request-panel" class="hidden fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+  <div class="w-11/12 max-w-2xl p-6 border rounded-lg shadow bg-white">
+    <h2 id="request-title" class="text-lg font-bold mb-2">Request Editor</h2>
+
+    <div id="request-fields" class="space-y-2"></div>
+
+    <div class="flex justify-end gap-2 mt-3">
+      <button onclick="closePanel()" 
+        class="px-4 py-2 rounded-md bg-gray-200 hover:bg-gray-300">Cancel</button>
+      <button onclick="confirmRequest()" 
+        class="px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700">Send Request</button>
+    </div>
+  </div>
+</div>
+
+<!-- Join Competition Modal -->
+<div id="join-competition-modal" class="hidden fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+  <div class="w-11/12 max-w-2xl p-6 border rounded-lg shadow bg-white">
+    <h2 class="text-lg font-bold mb-4">🏆 Join Competition</h2>
+    <p class="text-gray-600 mb-4">Choose a competition to join:</p>
+    
+    <div class="grid grid-cols-2 gap-3 mb-4">
+      <button onclick="joinCompetitionType('code-quality')" class="bg-blue-600 text-white px-4 py-3 rounded hover:bg-blue-700 text-center">
+        <div class="font-semibold">Code Quality</div>
+        <div class="text-sm opacity-90">Improve code readability</div>
+      </button>
+      <button onclick="joinCompetitionType('learning')" class="bg-blue-600 text-white px-4 py-3 rounded hover:bg-blue-700 text-center">
+        <div class="font-semibold">Learning</div>
+        <div class="text-sm opacity-90">Upskill and share knowledge</div>
+      </button>
+      <button onclick="joinCompetitionType('fitness')" class="bg-blue-600 text-white px-4 py-3 rounded hover:bg-blue-700 text-center">
+        <div class="font-semibold">Fitness</div>
+        <div class="text-sm opacity-90">Stay active at work</div>
+      </button>
+      <button onclick="joinCompetitionType('sustainability')" class="bg-blue-600 text-white px-4 py-3 rounded hover:bg-blue-700 text-center">
+        <div class="font-semibold">Sustainability</div>
+        <div class="text-sm opacity-90">Promote eco-friendly practices</div>
+      </button>
+      <button onclick="joinCompetitionType('creativity')" class="bg-blue-600 text-white px-4 py-3 rounded hover:bg-blue-700 text-center">
+        <div class="font-semibold">Creativity</div>
+        <div class="text-sm opacity-90">Express and innovate</div>
+      </button>
+      <button onclick="joinCompetitionType('team-building')" class="bg-blue-600 text-white px-4 py-3 rounded hover:bg-blue-700 text-center">
+        <div class="font-semibold">Team Building</div>
+        <div class="text-sm opacity-90">Strengthen collaboration</div>
+      </button>
+    </div>
+
+    <div class="flex justify-end gap-2 mt-4">
+      <button onclick="closeJoinCompetitionModal()" 
+        class="px-4 py-2 rounded-md bg-gray-200 hover:bg-gray-300">Cancel</button>
+    </div>
+  </div>
+</div>
+
+
+</body>
+</html>
