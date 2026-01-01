@@ -5,7 +5,7 @@ pipeline {
         DOCKER_REGISTRY = "your-ecr-registry-url"
         APP_NAME_BACKEND = "gamification-backend"
         APP_NAME_FRONTEND = "gamification-frontend"
-        IMAGE_TAG = "${env.BUILD_NUMBER}-${env.GIT_COMMIT[0..7]}"
+        IMAGE_TAG = "${env.BUILD_NUMBER}"
     }
     
     stages {
