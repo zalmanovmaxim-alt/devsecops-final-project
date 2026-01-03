@@ -9,11 +9,16 @@ pipeline {
         DOCKER_REGISTRY = "your-ecr-registry-url"
     }
 
+    options {
+        skipDefaultCheckout()
+    }
+
     stages {
-        stage('1. Prepare Workspace') {
+        stage('1. Checkout Code') {
             steps {
                 cleanWs()
-                echo "Workspace cleaned. Starting Build #${env.BUILD_NUMBER}"
+                checkout scm
+                echo "Workspace cleaned and code checked out. Starting Build #${env.BUILD_NUMBER}"
             }
         }
 
