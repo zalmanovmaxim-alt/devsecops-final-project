@@ -1,5 +1,9 @@
 pipeline {
-    agent any
+    agent {
+        node {
+            customWorkspace "/var/jenkins_home/workspace/gamification-clean"
+        }
+    }
     
     environment {
         APP_NAME_BACKEND = "gamification-backend"
