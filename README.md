@@ -30,8 +30,39 @@ docker-compose up --build -d
 ### 3. Verify the Services
 Once the containers are running, check these URLs:
 - **Frontend**: [http://localhost:8080](http://localhost:8080)
-- **Backend Health**: [http://localhost:5000/health/live](http://localhost:5000/health/live)
-- **Prometheus Metrics**: [http://localhost:5000/metrics](http://localhost:5000/metrics)
+- **Backend Health**: [http://localhost:5000/health/ready](http://localhost:5000/health/ready)
+- **Jenkins CI/CD**: [http://localhost:8081](http://localhost:8081)
+- **Prometheus UI**: [http://localhost:9090](http://localhost:9090)
+- **Grafana Dashboards**: [http://localhost:3000](http://localhost:3000) (User/Pass: `admin`/`admin`)
+
+---
+
+## 🔍 How to Verify the DevSecOps Features
+
+If you are presenting this project, follow these steps to showcase the work:
+
+### 1. Start the Platform
+```powershell
+# In the root directory
+docker-compose up --build -d
+```
+- **Verify**: Open [http://localhost:8080](http://localhost:8080) and log in.
+- **Backend Health**: Check [http://localhost:5000/health/ready](http://localhost:5000/health/ready).
+
+### 2. Inspect the CI/CD Pipeline
+- **File**: `devops-infra/jenkins/Jenkinsfile`
+- **What to show**: Point out the **9 stages** (Scan, Build, Test, etc.). These stages ensure that every commit is secure and functional before reaching production.
+
+### 3. Review Infrastructure as Code (IaC)
+- **Folder**: `devops-infra/terraform/`
+- **Key Modules**:
+    - `modules/registry`: Show how ECR repositories are automated.
+    - `environments/dev/backend.tf`: Highlight the **Remote State** (S3) and **State Locking** (DynamoDB) setup—crucial for team collaboration.
+
+### 4. Explore Monitoring & Observability
+- **Prometheus**: Open `devops-infra/monitoring/prometheus/alerts.yaml` to show the active alerting rules for high error rates and database failures.
+- **Grafana**: Show the dashboard configuration in `devops-infra/monitoring/grafana/dashboards.yaml`.
+- **Live Metrics**: Visit [http://localhost:5000/metrics](http://localhost:5000/metrics) to see the raw data being scraped by Prometheus.
 
 ---
 

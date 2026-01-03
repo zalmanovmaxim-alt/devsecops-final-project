@@ -16,3 +16,14 @@ module "database" {
   source = "../../modules/database"
   vpc_id = module.networking.vpc_id
 }
+module "registry" {
+  source = "../../modules/registry"
+}
+
+output "backend_ecr_url" {
+  value = module.registry.backend_repository_url
+}
+
+output "frontend_ecr_url" {
+  value = module.registry.frontend_repository_url
+}

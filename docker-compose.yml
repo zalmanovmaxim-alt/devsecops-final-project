@@ -45,6 +45,44 @@ services:
     networks:
       - dev-net
 
+  jenkins:
+    build:
+      context: ./devops-infra/jenkins
+    container_name: jenkins_con
+    ports:
+      - "8081:8080"
+      - "50000:50000"
+    volumes:
+      - jenkins_home:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - dev-net
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus_con
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./devops-infra/monitoring/prometheus/local_prometheus.yml:/etc/prometheus/prometheus.yml
+    networks:
+      - dev-net
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana_con
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./devops-infra/monitoring/grafana/provisioning:/etc/grafana/provisioning
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    networks:
+      - dev-net
+
 networks:
   dev-net:
     driver: bridge
+
+volumes:
+  jenkins_home:

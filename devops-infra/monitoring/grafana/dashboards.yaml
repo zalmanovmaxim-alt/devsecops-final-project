@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboards
+  namespace: gamification
+data:
+  app-dashboard.json: |
+    {
+      "title": "Application Metrics",
+      "panels": [
+        {
+          "title": "Request Rate",
+          "type": "graph",
+          "targets": [{ "expr": "rate(flask_http_request_total[1m])" }]
+        },
+        {
+          "title": "Error Rate",
+          "type": "graph",
+          "targets": [{ "expr": "rate(flask_http_request_total{status=~'5..'}[1m])" }]
+        }
+      ]
+    }

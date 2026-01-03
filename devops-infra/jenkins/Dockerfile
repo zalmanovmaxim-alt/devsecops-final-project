@@ -8,7 +8,11 @@ RUN apt-get update -o Acquire::Retries=3 && \
     curl \
     git \
     python3 \
-    python3-pip && \
+    python3-venv \
+    python3-pip \
+    libpq-dev \
+    python3-dev \
+    gcc && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 

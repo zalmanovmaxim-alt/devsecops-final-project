@@ -1,6 +1,6 @@
 import pytest
-from main import app, db
-from classes.user import User
+from app import app, db
+from app.models.models import User
 
 @pytest.fixture
 def client():
