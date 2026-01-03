@@ -7,9 +7,13 @@ from .config import Config
 from .utils.db import db
 from .metrics import init_metrics
 
-def create_app():
+def create_app(test_config=None):
     app = Flask(__name__, static_folder='static', template_folder='templates')
-    app.config.from_object(Config)
+    
+    if test_config:
+        app.config.update(test_config)
+    else:
+        app.config.from_object(Config)
     
     CORS(app)
     JWTManager(app)
