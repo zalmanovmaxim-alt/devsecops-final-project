@@ -10,10 +10,10 @@ pipeline {
     }
 
     stages {
-        stage('1. Checkout Code') {
+        stage('1. Prepare Workspace') {
             steps {
                 cleanWs()
-                checkout scm
+                echo "Workspace cleaned. Starting Build #${env.BUILD_NUMBER}"
             }
         }
 
