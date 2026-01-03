@@ -34,7 +34,7 @@ pipeline {
             steps {
                 echo "Running unit tests..."
                 // Run tests inside the container we just built to ensure consistency
-                sh "docker run --rm ${APP_NAME_BACKEND}:${IMAGE_TAG} pytest -v"
+                sh "docker run --rm ${APP_NAME_BACKEND}:${IMAGE_TAG} python3 -m pytest -v"
             }
         }
 
