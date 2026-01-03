@@ -45,7 +45,7 @@ def create_app():
             pass
 
         # Create database tables
-        db.create_all()
+        # db.create_all() # Disabled to prevent crash on import. Use migrations or manual init.
         
     return app
 
