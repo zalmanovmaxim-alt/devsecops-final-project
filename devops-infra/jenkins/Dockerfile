@@ -11,6 +11,7 @@ RUN apt-get update -o Acquire::Retries=3 && \
     python3-venv \
     python3-pip \
     libpq-dev \
+    python3-psycopg2 \
     python3-dev \
     gcc && \
     apt-get clean && \
