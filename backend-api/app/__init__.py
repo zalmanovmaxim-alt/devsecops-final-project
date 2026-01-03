@@ -18,7 +18,7 @@ def create_app(test_config=None):
     CORS(app)
     JWTManager(app)
     db.init_app(app)
-    init_metrics(app)
+    init_metrics(app, db)
     
     with app.app_context():
         # Import and register blueprints

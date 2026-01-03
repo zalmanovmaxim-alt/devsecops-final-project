@@ -10,6 +10,21 @@
     "liveNow": false,
     "panels": [
         {
+            "title": "Active Connections",
+            "type": "gauge",
+            "gridPos": {
+                "h": 4,
+                "w": 4,
+                "x": 0,
+                "y": 0
+            },
+            "targets": [
+                {
+                    "expr": "db_connection_status"
+                }
+            ]
+        },
+        {
             "title": "Request Rate",
             "type": "timeseries",
             "targets": [

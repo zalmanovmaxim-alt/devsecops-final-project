@@ -61,10 +61,14 @@ services:
   prometheus:
     image: prom/prometheus:latest
     container_name: prometheus_con
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.retention.time=15d"
     ports:
       - "9090:9090"
     volumes:
       - ./devops-infra/monitoring/prometheus/local_prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./devops-infra/monitoring/prometheus/alert_rules.yml:/etc/prometheus/alert_rules.yml
     networks:
       - dev-net
 
@@ -75,8 +79,42 @@ services:
       - "3000:3000"
     volumes:
       - ./devops-infra/monitoring/grafana/provisioning:/etc/grafana/provisioning
+      - ./devops-infra/monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards
     environment:
       - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH=/etc/grafana/provisioning/dashboards/application.json
+    networks:
+      - dev-net
+
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: node_exporter
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.sysfs=/host/sys'
+    networks:
+      - dev-net
+
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:latest
+    container_name: cadvisor
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+    networks:
+      - dev-net
+
+  postgres-exporter:
+    image: quay.io/prometheuscommunity/postgres-exporter
+    container_name: postgres_exporter
+    environment:
+      DATA_SOURCE_NAME: "postgresql://app_admin:SuperSecret123@database:5432/gamification?sslmode=disable"
     networks:
       - dev-net
 

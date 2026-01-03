@@ -1,0 +1,85 @@
+{
+    "annotations": {
+        "list": []
+    },
+    "editable": true,
+    "panels": [
+        {
+            "title": "Active Connections",
+            "type": "gauge",
+            "gridPos": {
+                "h": 8,
+                "w": 12,
+                "x": 0,
+                "y": 0
+            },
+            "targets": [
+                {
+                    "expr": "pg_stat_activity_count"
+                }
+            ]
+        },
+        {
+            "title": "Transactions (Commit/Rollback)",
+            "type": "timeseries",
+            "gridPos": {
+                "h": 8,
+                "w": 12,
+                "x": 12,
+                "y": 0
+            },
+            "targets": [
+                {
+                    "legendFormat": "Commits",
+                    "expr": "rate(pg_stat_database_xact_commit[5m])"
+                },
+                {
+                    "legendFormat": "Rollbacks",
+                    "expr": "rate(pg_stat_database_xact_rollback[5m])"
+                }
+            ]
+        },
+        {
+            "title": "Cache Hit Rate",
+            "type": "stat",
+            "gridPos": {
+                "h": 8,
+                "w": 12,
+                "x": 0,
+                "y": 8
+            },
+            "targets": [
+                {
+                    "expr": "sum(pg_stat_database_blks_hit) / (sum(pg_stat_database_blks_hit) + sum(pg_stat_database_blks_read))"
+                }
+            ],
+            "fieldConfig": {
+                "defaults": {
+                    "unit": "percentunit"
+                }
+            }
+        },
+        {
+            "title": "Table Scans (Sequential vs Index)",
+            "type": "timeseries",
+            "gridPos": {
+                "h": 8,
+                "w": 12,
+                "x": 12,
+                "y": 8
+            },
+            "targets": [
+                {
+                    "legendFormat": "Seq Scans",
+                    "expr": "rate(pg_stat_user_tables_seq_scan[5m])"
+                },
+                {
+                    "legendFormat": "Index Scans",
+                    "expr": "rate(pg_stat_user_tables_idx_scan[5m])"
+                }
+            ]
+        }
+    ],
+    "title": "Database Performance",
+    "uid": "db-dash"
+}
