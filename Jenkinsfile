@@ -1,8 +1,8 @@
 pipeline {
-    agent {
-        node {
-            customWorkspace "/var/jenkins_home/workspace/gamification-clean"
-        }
+    agent any
+    
+    options {
+        skipDefaultCheckout()
     }
     
     environment {
@@ -13,12 +13,8 @@ pipeline {
         DOCKER_REGISTRY = "your-ecr-registry-url"
     }
 
-    options {
-        skipDefaultCheckout()
-    }
-
     stages {
-        stage('1. Checkout Code') {
+        stage('1. Checkout') {
             steps {
                 cleanWs()
                 checkout scm
@@ -26,7 +22,7 @@ pipeline {
             }
         }
 
-        stage('2. Build Images') {
+        stage('2. Build') {
             steps {
                 echo "Building Docker images..."
                 sh "docker build -t ${APP_NAME_BACKEND}:${IMAGE_TAG} ./backend-api"
@@ -34,49 +30,45 @@ pipeline {
             }
         }
 
-        stage('3. Test App') {
+        stage('3. Test') {
             steps {
                 echo "Running unit tests..."
                 sh "cd backend-api && pip install -r requirements.txt && pytest"
             }
         }
 
-        stage('4. Scan Images') {
+        stage('4. Security Scan') {
             steps {
                 echo "Trivy Security Scan (Mocked)..."
-                echo "0 Critical Vulnerabilities found."
             }
         }
 
-        stage('5. Tag Images') {
+        stage('5. Tag') {
             steps {
-                echo "Tagging images..."
                 sh "docker tag ${APP_NAME_BACKEND}:${IMAGE_TAG} ${APP_NAME_BACKEND}:latest"
                 sh "docker tag ${APP_NAME_FRONTEND}:${IMAGE_TAG} ${APP_NAME_FRONTEND}:latest"
             }
         }
 
-        stage('6. Push Images') {
+        stage('6. Push') {
             steps {
-                echo "Pushing to Registry (Mocked)..."
-                echo "Images tagged for ${DOCKER_REGISTRY}"
+                echo "Pushing images to ${DOCKER_REGISTRY} (Mocked)..."
             }
         }
 
-        stage('7. Deploy to K8s') {
+        stage('7. Deploy') {
             steps {
                 echo "Deploying to Kubernetes (Mocked)..."
-                echo "kubectl apply -f devops-infra/kubernetes/"
             }
         }
 
-        stage('8. Verify Health') {
+        stage('8. Verify') {
             steps {
                 echo "Health Check: Backend is READY."
             }
         }
 
-        stage('9. Notify Slack') {
+        stage('9. Notify') {
             steps {
                 echo "Notification sent: Build ${env.BUILD_NUMBER} SUCCESS"
             }
