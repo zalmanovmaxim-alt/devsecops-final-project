@@ -5,29 +5,106 @@
     "editable": true,
     "panels": [
         {
-            "title": "Pod Status",
-            "type": "state-timeline",
+            "title": "Node Status (Host Health)",
+            "type": "stat",
+            "gridPos": {
+                "h": 4,
+                "w": 24,
+                "x": 0,
+                "y": 0
+            },
             "targets": [
                 {
-                    "expr": "kube_pod_status_phase"
+                    "legendFormat": "Node Up",
+                    "expr": "up{job='node'}"
                 }
             ]
         },
         {
-            "title": "CPU Usage per Pod",
+            "title": "Cluster CPU Usage",
             "type": "timeseries",
+            "gridPos": {
+                "h": 8,
+                "w": 12,
+                "x": 0,
+                "y": 4
+            },
             "targets": [
                 {
-                    "expr": "sum(rate(container_cpu_usage_seconds_total[5m])) by (pod)"
+                    "legendFormat": "System Load",
+                    "expr": "rate(node_cpu_seconds_total{mode='system'}[5m])"
+                },
+                {
+                    "legendFormat": "User Load",
+                    "expr": "rate(node_cpu_seconds_total{mode='user'}[5m])"
                 }
             ]
         },
         {
-            "title": "Memory Usage per Pod",
+            "title": "Cluster Memory Usage",
             "type": "timeseries",
+            "gridPos": {
+                "h": 8,
+                "w": 12,
+                "x": 12,
+                "y": 4
+            },
             "targets": [
                 {
-                    "expr": "sum(container_memory_usage_bytes) by (pod)"
+                    "legendFormat": "Memory Used",
+                    "expr": "node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes"
+                }
+            ]
+        },
+        {
+            "title": "Container CPU Usage (Pod Equivalent)",
+            "type": "timeseries",
+            "gridPos": {
+                "h": 8,
+                "w": 12,
+                "x": 0,
+                "y": 12
+            },
+            "targets": [
+                {
+                    "legendFormat": "{{name}}",
+                    "expr": "sum(rate(container_cpu_usage_seconds_total{name!=''}[5m])) by (name)"
+                }
+            ]
+        },
+        {
+            "title": "Container Memory Usage",
+            "type": "timeseries",
+            "gridPos": {
+                "h": 8,
+                "w": 12,
+                "x": 12,
+                "y": 12
+            },
+            "targets": [
+                {
+                    "legendFormat": "{{name}}",
+                    "expr": "sum(container_memory_usage_bytes{name!=''}) by (name)"
+                }
+            ]
+        },
+        {
+            "title": "Network Traffic (Receive/Transmit)",
+            "type": "timeseries",
+            "gridPos": {
+                "h": 8,
+                "w": 24,
+                "x": 0,
+                "y": 20
+            },
+            "targets": [
+                {
+                    "legendFormat": "RX {{name}}",
+                    "expr": "sum(rate(container_network_receive_bytes_total{name!=''}[5m])) by (name)"
+                },
+                {
+                    "legendFormat": "TX {{name}}",
+                    "expr": "-sum(rate(container_network_transmit_bytes_total{name!=''}[5m])) by (name)"
                 }
             ]
         }
