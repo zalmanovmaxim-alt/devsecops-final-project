@@ -1,5 +1,5 @@
 resource "aws_ecr_repository" "backend" {
-  name                 = "gamification-backend"
+  name                 = "${var.environment}-gamification-backend"
   image_tag_mutability = "MUTABLE"
 
   image_scanning_configuration {
@@ -8,7 +8,7 @@ resource "aws_ecr_repository" "backend" {
 }
 
 resource "aws_ecr_repository" "frontend" {
-  name                 = "gamification-frontend"
+  name                 = "${var.environment}-gamification-frontend"
   image_tag_mutability = "MUTABLE"
 
   image_scanning_configuration {
