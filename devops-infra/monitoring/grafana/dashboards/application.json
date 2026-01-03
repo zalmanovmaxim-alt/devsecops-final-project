@@ -1,0 +1,54 @@
+{
+    "annotations": {
+        "list": []
+    },
+    "editable": true,
+    "fiscalYearStartMonth": 0,
+    "graphTooltip": 0,
+    "id": null,
+    "links": [],
+    "liveNow": false,
+    "panels": [
+        {
+            "title": "Request Rate",
+            "type": "timeseries",
+            "targets": [
+                {
+                    "expr": "rate(flask_http_request_total[5m])"
+                }
+            ]
+        },
+        {
+            "title": "Error Rate",
+            "type": "timeseries",
+            "targets": [
+                {
+                    "expr": "rate(flask_http_request_total{status=~\"5..\"}[5m])"
+                }
+            ]
+        },
+        {
+            "title": "Response Time (p95)",
+            "type": "timeseries",
+            "targets": [
+                {
+                    "expr": "histogram_quantile(0.95, sum by (le) (rate(flask_http_request_duration_seconds_bucket[5m])))"
+                }
+            ]
+        }
+    ],
+    "schemaVersion": 36,
+    "style": "dark",
+    "tags": [],
+    "templating": {
+        "list": []
+    },
+    "time": {
+        "from": "now-6h",
+        "to": "now"
+    },
+    "timepicker": {},
+    "timezone": "",
+    "title": "Application Dashboard",
+    "uid": "app-dash"
+}

@@ -23,3 +23,18 @@ data:
         editable: true
         options:
           path: /etc/grafana/provisioning/dashboards
+  application.json: |
+    {
+      "title": "Application Dashboard",
+      "panels": [
+        { "title": "Request Rate", "type": "timeseries", "targets": [{ "expr": "rate(flask_http_request_total[5m])" }] },
+        { "title": "Error Rate", "type": "timeseries", "targets": [{ "expr": "rate(flask_http_request_total{status=~\"5..\"}[5m])" }] }
+      ]
+    }
+  kubernetes.json: |
+    {
+      "title": "Kubernetes Dashboard",
+      "panels": [
+        { "title": "Pod Status", "type": "state-timeline", "targets": [{ "expr": "kube_pod_status_phase" }] }
+      ]
+    }

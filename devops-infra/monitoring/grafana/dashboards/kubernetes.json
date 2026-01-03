@@ -1,0 +1,37 @@
+{
+    "annotations": {
+        "list": []
+    },
+    "editable": true,
+    "panels": [
+        {
+            "title": "Pod Status",
+            "type": "state-timeline",
+            "targets": [
+                {
+                    "expr": "kube_pod_status_phase"
+                }
+            ]
+        },
+        {
+            "title": "CPU Usage per Pod",
+            "type": "timeseries",
+            "targets": [
+                {
+                    "expr": "sum(rate(container_cpu_usage_seconds_total[5m])) by (pod)"
+                }
+            ]
+        },
+        {
+            "title": "Memory Usage per Pod",
+            "type": "timeseries",
+            "targets": [
+                {
+                    "expr": "sum(container_memory_usage_bytes) by (pod)"
+                }
+            ]
+        }
+    ],
+    "title": "Kubernetes Dashboard",
+    "uid": "k8s-dash"
+}
