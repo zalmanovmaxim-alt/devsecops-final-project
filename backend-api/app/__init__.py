@@ -38,6 +38,12 @@ def create_app():
         app.register_blueprint(health_bp, url_prefix='/health')
         app.register_blueprint(api_bp, url_prefix='/api')
         
+        # Ensure instance folder exists
+        try:
+            os.makedirs(app.instance_path)
+        except OSError:
+            pass
+
         # Create database tables
         db.create_all()
         
