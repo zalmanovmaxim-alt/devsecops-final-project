@@ -1,12 +1,17 @@
-import pytest
-from app import app, db
+from app import create_app, db
 from app.models.models import User
 
 @pytest.fixture
-def client():
-    app.config['TESTING'] = True
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
-    
+def app():
+    app = create_app()
+    app.config.update({
+        "TESTING": True,
+        "SQLALCHEMY_DATABASE_URI": "sqlite:///:memory:"
+    })
+    return app
+
+@pytest.fixture
+def client(app):
     with app.test_client() as client:
         with app.app_context():
             db.create_all()
