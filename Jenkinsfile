@@ -33,7 +33,8 @@ pipeline {
         stage('3. Test') {
             steps {
                 echo "Running unit tests..."
-                sh "cd backend-api && pip install -r requirements.txt && pytest"
+                // Use a virtual environment to avoid PEP 668 "externally-managed-environment" error
+                sh "cd backend-api && python3 -m venv venv && . venv/bin/activate && pip install -r requirements.txt && pytest"
             }
         }
 
