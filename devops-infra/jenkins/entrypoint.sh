@@ -1,26 +1,27 @@
 #!/bin/bash
 set -e
 
-# Get the group ID of the docker socket mounted from host
 DOCKER_SOCKET_GID=$(stat -c '%g' /var/run/docker.sock)
+echo "Docker socket GID is: $DOCKER_SOCKET_GID"
 
-# Check if the 'docker' group exists
-if getent group docker > /dev/null 2>&1; then
-    # If it exists, checking if it matches the socket GID
-    CURRENT_GID=$(getent group docker | cut -d: -f3)
-    if [ "$CURRENT_GID" != "$DOCKER_SOCKET_GID" ]; then
-        echo "Updating docker group GID from $CURRENT_GID to $DOCKER_SOCKET_GID"
-        groupmod -g ${DOCKER_SOCKET_GID} docker
-    fi
+# Check if a group with this GID already exists
+if getent group "$DOCKER_SOCKET_GID" > /dev/null 2>&1; then
+    TARGET_GROUP=$(getent group "$DOCKER_SOCKET_GID" | cut -d: -f1)
+    echo "Group with GID $DOCKER_SOCKET_GID already exists: $TARGET_GROUP"
 else
-    # Create the group with the socket's GID
-    echo "Creating docker group with GID $DOCKER_SOCKET_GID"
-    groupadd -g ${DOCKER_SOCKET_GID} docker
+    # GID doesn't exist. Check if 'docker' group name exists
+    if getent group docker > /dev/null 2>&1; then
+        echo "Group 'docker' exists but has different GID. Updating..."
+        groupmod -g "$DOCKER_SOCKET_GID" docker
+    else
+        echo "Creating group 'docker' with GID $DOCKER_SOCKET_GID"
+        groupadd -g "$DOCKER_SOCKET_GID" docker
+    fi
+    TARGET_GROUP="docker"
 fi
 
-# Ensure jenkins user is part of the docker group
-usermod -aG docker jenkins
+echo "Adding jenkins user to group: $TARGET_GROUP"
+usermod -aG "$TARGET_GROUP" jenkins
 
-# Execute the passed command (jenkins) as the jenkins user
 echo "Starting Jenkins..."
 exec gosu jenkins "$@"
