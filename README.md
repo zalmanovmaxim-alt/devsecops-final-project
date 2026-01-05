@@ -93,3 +93,50 @@ npm run dev
 - **Observability**: Prometheus metrics exported on `/metrics`.
 - **Infrastructure**: Terraform modules for AWS EKS & RDS in `devops-infra/`.
 - **Health Probes**: Kubernetes-ready `/health/live` and `/health/ready` endpoints.
+
+---
+
+## 🔁 How to Add a New Pipeline (Step-by-Step)
+
+If you want to create a new pipeline (e.g., `pipe2` or `release-pipeline`), follow these steps to ensure it works correctly.
+
+### 1. Create the Pipeline Script (Jenkinsfile)
+You need a file that tells Jenkins what to do.
+- **Option A (Standard)**: Use the existing `Jenkinsfile` at the root of the repo.
+- **Option B (Custom)**: Create a new file (e.g., `Jenkinsfile-release`) in the root or `devops-infra/jenkins/`.
+
+**Example Minimal Jenkinsfile:**
+```groovy
+pipeline {
+    agent any
+    stages {
+        stage('Build') {
+            steps {
+                echo 'Building...'
+            }
+        }
+    }
+}
+```
+
+### 2. Configure the Job in Jenkins
+1.  **Log in** to Jenkins: [http://localhost:8081](http://localhost:8081).
+2.  Click **"New Item"** on the left dashboard.
+3.  Enter a name (e.g., `My-New-Pipeline`).
+4.  Select **"Pipeline"** and click **OK**.
+
+### 3. Connect to Code (Critical Step)
+Inside the job configuration, scroll down to the **Pipeline** section:
+- **Definition**: Change from "Pipeline script" to **"Pipeline script from SCM"**.
+- **SCM**: Select **Git**.
+- **Repository URL**: `https://github.com/zalmanovmaxim-alt/devsecops-final-project.git` (or your repo URL).
+- **Branch Specifier**: `*/main`.
+- **Script Path**: 
+    - If using the main file: `Jenkinsfile` (Just the filename if it's in the root).
+    - If using a custom file: `devops-infra/jenkins/Jenkinsfile-custom` (Full path from repo root).
+    - *Note: `pipe1` failed previously because it looked for `devops-infra/jenkins/Jenkinsfile` which didn't exist until we fixed it.*
+
+### 4. Save and Build
+1.  Click **Save**.
+2.  Click **"Build Now"** on the left sidebar.
+3.  Monitor the build in "Console Output" if issues arise.
