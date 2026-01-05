@@ -21,9 +21,8 @@ RUN apt-get update -o Acquire::Retries=3 && \
 RUN curl -fsSL https://download.docker.com/linux/static/stable/x86_64/docker-26.1.4.tgz | \
     tar zxvf - --strip-components=1 -C /usr/local/bin/ docker/docker
 
-# JCasC Configuration
-ENV CASC_JENKINS_CONFIG /var/jenkins_home/casc_configs/jenkins.yaml
-COPY jenkins.yaml /var/jenkins_home/casc_configs/jenkins.yaml
+# Copy Init Scripts (Fail-Safe)
+COPY job_setup.groovy /usr/share/jenkins/ref/init.groovy.d/job_setup.groovy
 
 # Install pytest
 RUN pip3 install pytest --break-system-packages --no-cache-dir
@@ -40,7 +39,20 @@ RUN jenkins-plugin-cli --plugins \
     workflow-cps \
     structs \
     script-security \
-    cloudbees-folder
+    cloudbees-folder \
+    pipeline-model-definition \
+    pipeline-stage-view \
+    git-client \
+    scm-api \
+    credentials \
+    credentials-binding \
+    timestamper \
+    ws-cleanup \
+    workflow-step-api \
+    workflow-support \
+    plain-credentials \
+    matrix-auth \
+    authorize-project
 
 # Install gosu for easy user switching in entrypoint
 RUN set -eux; \
