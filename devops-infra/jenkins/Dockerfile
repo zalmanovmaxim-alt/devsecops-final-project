@@ -21,6 +21,10 @@ RUN apt-get update -o Acquire::Retries=3 && \
 RUN curl -fsSL https://download.docker.com/linux/static/stable/x86_64/docker-26.1.4.tgz | \
     tar zxvf - --strip-components=1 -C /usr/local/bin/ docker/docker
 
+# JCasC Configuration
+ENV CASC_JENKINS_CONFIG /var/jenkins_home/casc_configs/jenkins.yaml
+COPY jenkins.yaml /var/jenkins_home/casc_configs/jenkins.yaml
+
 # Install pytest
 RUN pip3 install pytest --break-system-packages --no-cache-dir
 

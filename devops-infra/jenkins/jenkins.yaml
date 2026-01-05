@@ -1,0 +1,27 @@
+jenkins:
+  systemMessage: "Jenkins configured via JCasC for DevSecOps Project. Fully Automated."
+  numExecutors: 2
+  scmCheckoutRetryCount: 2
+  mode: NORMAL
+
+jobs:
+  - script: >
+      pipelineJob('DevSecOps-Pipeline') {
+          definition {
+              cpsScm {
+                  scm {
+                      git {
+                          remote {
+                              url('https://github.com/zalmanovmaxim-alt/devsecops-final-project.git')
+                          }
+                          branch('main')
+                          extensions { }
+                      }
+                  }
+                  scriptPath('Jenkinsfile')
+              }
+          }
+          triggers {
+              scm('H/5 * * * *')
+          }
+      }
