@@ -5,7 +5,7 @@ jenkins:
   mode: NORMAL
 
 jobs:
-  - script: >
+  - script: |
       pipelineJob('DevSecOps-Pipeline') {
           definition {
               cpsScm {
