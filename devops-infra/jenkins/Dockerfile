@@ -39,7 +39,8 @@ RUN jenkins-plugin-cli --plugins \
     workflow-job \
     workflow-cps \
     structs \
-    script-security
+    script-security \
+    cloudbees-folder
 
 # Install gosu for easy user switching in entrypoint
 RUN set -eux; \
