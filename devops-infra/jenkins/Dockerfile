@@ -35,7 +35,11 @@ RUN jenkins-plugin-cli --plugins \
     workflow-aggregator \
     git \
     configuration-as-code \
-    job-dsl
+    job-dsl \
+    workflow-job \
+    workflow-cps \
+    structs \
+    script-security
 
 # Install gosu for easy user switching in entrypoint
 RUN set -eux; \
