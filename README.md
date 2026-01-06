@@ -1,6 +1,6 @@
 # Gamification Platform - DevSecOps Modernization 🚀
 
-Welcome to the modernized Gamification Platform! This project has been restructured into a professional, containerized architecture ready for a DevSecOps presentation.
+Welcome to the modernized Gamification Platform! This project has been restructured into a professional, containerized architecture ready for a DevOps production.
 
 ## 🏗 Project Structure
 
@@ -22,7 +22,7 @@ The easiest way to run the entire system is using **Docker Compose**.
 ### 2. Initialization
 If you just downloaded the ZIP file, extract it and open your terminal (PowerShell or Bash) in the project root:
 
-```powershell
+```
 # Build and start all services (Backend, Frontend, Database)
 docker-compose up --build -d
 ```
@@ -37,12 +37,10 @@ Once the containers are running, check these URLs:
 
 ---
 
-## 🔍 How to Verify the DevSecOps Features
-
-If you are presenting this project, follow these steps to showcase the work:
+## 🔍 Verify the features
 
 ### 1. Start the Platform
-```powershell
+```
 # In the root directory
 docker-compose up --build -d
 ```
@@ -50,13 +48,13 @@ docker-compose up --build -d
 - **Backend Health**: Check [http://localhost:5000/health/ready](http://localhost:5000/health/ready).
 
 ### 2. Inspect the CI/CD Pipeline
-- **What to show**: Point out the **9 stages** (Scan, Build, Test, etc.). These stages ensure that every commit is secure and functional before reaching production.
+**9 stages** (Scan, Build, Test, etc.). These stages ensure that every commit is secure and functional before reaching production.
 
-### 3. Infrastructure as Code (IaC)
+### 3. Infrastructure as Code 
 - **Folder**: `devops-infra/terraform/`
 - **Key Modules**:
-    - `modules/registry`: Show how ECR repositories are automated.
-    - `environments/dev/backend.tf`: Highlight the **Remote State** (S3) and **State Locking** (DynamoDB) setup—crucial for team collaboration.
+    - `modules/registry`: ECR repositories are automated.
+    - `environments/dev/backend.tf`: **Remote State** (S3) and **State Locking** (DynamoDB) setup
 
 ### 4.  Monitoring & Observability
 - **Prometheus**: Open `devops-infra/monitoring/prometheus/alerts.yaml` to show the active alerting rules for high error rates and database failures.
@@ -100,23 +98,7 @@ npm run dev
 If you want to create a new pipeline (e.g., `pipe2` or `release-pipeline`), follow these steps to ensure it works correctly.
 
 ### 1. Create the Pipeline Script (Jenkinsfile)
-You need a file that tells Jenkins what to do.
-- **Option A (Standard)**: Use the existing `Jenkinsfile` at the root of the repo.
-- **Option B (Custom)**: Create a new file (e.g., `Jenkinsfile-release`) in the root or `devops-infra/jenkins/`.
-
-**Example Minimal Jenkinsfile:**
-```groovy
-pipeline {
-    agent any
-    stages {
-        stage('Build') {
-            steps {
-                echo 'Building...'
-            }
-        }
-    }
-}
-```
+Use the existing `Jenkinsfile` at the root of the repo.
 
 ### 2. Configure the Job in Jenkins
 1.  **Log in** to Jenkins: [http://localhost:8081](http://localhost:8081).
@@ -124,7 +106,7 @@ pipeline {
 3.  Enter a name (e.g., `My-New-Pipeline`).
 4.  Select **"Pipeline"** and click **OK**.
 
-### 3. Connect to Code (Critical Step)
+### 3. Connect to Code
 Inside the job configuration, scroll down to the **Pipeline** section:
 - **Definition**: Change from "Pipeline script" to **"Pipeline script from SCM"**.
 - **SCM**: Select **Git**.
