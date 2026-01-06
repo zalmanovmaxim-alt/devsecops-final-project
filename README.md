@@ -50,16 +50,15 @@ docker-compose up --build -d
 - **Backend Health**: Check [http://localhost:5000/health/ready](http://localhost:5000/health/ready).
 
 ### 2. Inspect the CI/CD Pipeline
-- **File**: `devops-infra/jenkins/Jenkinsfile`
 - **What to show**: Point out the **9 stages** (Scan, Build, Test, etc.). These stages ensure that every commit is secure and functional before reaching production.
 
-### 3. Review Infrastructure as Code (IaC)
+### 3. Infrastructure as Code (IaC)
 - **Folder**: `devops-infra/terraform/`
 - **Key Modules**:
     - `modules/registry`: Show how ECR repositories are automated.
     - `environments/dev/backend.tf`: Highlight the **Remote State** (S3) and **State Locking** (DynamoDB) setup—crucial for team collaboration.
 
-### 4. Explore Monitoring & Observability
+### 4.  Monitoring & Observability
 - **Prometheus**: Open `devops-infra/monitoring/prometheus/alerts.yaml` to show the active alerting rules for high error rates and database failures.
 - **Grafana**: Show the dashboard configuration in `devops-infra/monitoring/grafana/dashboards.yaml`.
 - **Live Metrics**: Visit [http://localhost:5000/metrics](http://localhost:5000/metrics) to see the raw data being scraped by Prometheus.
@@ -132,9 +131,7 @@ Inside the job configuration, scroll down to the **Pipeline** section:
 - **Repository URL**: `https://github.com/zalmanovmaxim-alt/devsecops-final-project.git` (or your repo URL).
 - **Branch Specifier**: `*/main`.
 - **Script Path**: 
-    - If using the main file: `Jenkinsfile` (Just the filename if it's in the root).
-    - If using a custom file: `devops-infra/jenkins/Jenkinsfile-custom` (Full path from repo root).
-    - *Note: `pipe1` failed previously because it looked for `devops-infra/jenkins/Jenkinsfile` which didn't exist until we fixed it.*
+    - If using the main file: `Jenkinsfile`
 
 ### 4. Save and Build
 1.  Click **Save**.
